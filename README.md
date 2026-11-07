@@ -9,6 +9,14 @@ Everything stays on your device: no account, no analytics, no ads.
 
 **Website:** https://bilalansari.in/ReelGuard/ · **Download:** [latest release](https://github.com/bilal8492/ReelGuard/releases/latest)
 
+## Screenshots
+
+<p>
+  <img src="site/screenshots/today.jpg" alt="Today screen showing 19 of 50 with Shorts and Reels counts" width="30%">
+  <img src="site/screenshots/history.jpg" alt="History screen with 7-day chart and streak stats" width="30%">
+  <img src="site/screenshots/settings.jpg" alt="Settings screen with daily limit, schedule and blocking options" width="30%">
+</p>
+
 ## Install (APK)
 
 ReelGuard is not on Google Play. Download `ReelGuard-vX.Y.Z.apk` from the
