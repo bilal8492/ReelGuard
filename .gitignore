@@ -1,0 +1,28 @@
+# Build output
+build/
+app/build/
+.gradle/
+.kotlin/
+*.apk
+*.aab
+*.iml
+.idea/
+.vscode/
+.DS_Store
+captures/
+.cxx/
+
+# Local machine config
+local.properties
+
+# Secrets: never commit these
+keystore.properties
+*.jks
+*.keystore
+google-services.json
+**/google-services.json
+.env
+.env.*
+*.pem
+*.p12
+secrets.properties

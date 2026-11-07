@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Usage ring (track, Shorts blue, Reels orange) around a rounded play button. Stays inside the 66dp adaptive safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:pathData="M54,30 A24,24 0 1 1 54,78 A24,24 0 1 1 54,30"
+        android:strokeColor="#FF3A3D44"
+        android:strokeWidth="8"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M54,30 A24,24 0 0 1 62.21,76.55"
+        android:strokeColor="#FF3987E5"
+        android:strokeWidth="8"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M53.16,77.99 A24,24 0 0 1 31.45,62.21"
+        android:strokeColor="#FFF0703A"
+        android:strokeWidth="8"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M48,46 L48,62 L62,54 Z"
+        android:fillColor="#FFFFFFFF"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineJoin="round" />
+</vector>

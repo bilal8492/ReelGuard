@@ -1,0 +1,13 @@
+[
+  {"type":"frame","timeMs":0,"pkg":"com.google.android.youtube","signalA":true,"signalB":true,"signalC":true,"signature":11},
+  {"type":"frame","timeMs":1500,"pkg":"com.google.android.youtube","signalA":true,"signalB":true,"signalC":true,"signature":11},
+  {"type":"frame","timeMs":3000,"pkg":"com.google.android.youtube","signalA":true,"signalB":true,"signalC":true,"signature":22,"pagerScrolling":true},
+  {"type":"tick","timeMs":3900},
+  {"type":"frame","timeMs":6000,"pkg":"com.google.android.youtube","signalA":true,"signalB":true,"signalC":true,"signature":33},
+  {"type":"tick","timeMs":7000},
+  {"type":"frame","timeMs":9000,"pkg":"com.google.android.youtube","signalA":true,"signalB":true,"signalC":true,"signature":22},
+  {"type":"tick","timeMs":10000},
+  {"type":"frame","timeMs":11000,"pkg":"com.google.android.youtube","signalA":false,"signalB":false,"signalC":false},
+  {"type":"frame","timeMs":14000,"pkg":"com.google.android.youtube","signalA":true,"signalB":true,"signalC":true,"signature":22},
+  {"type":"left","timeMs":20000,"pkg":"com.google.android.youtube"}
+]

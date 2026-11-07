@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReelGuard - limit Reels and Shorts</title>
+<meta name="description" content="ReelGuard counts the Instagram Reels and YouTube Shorts you watch, lets you set a daily limit, and keeps all data on your device. Free and open source Android app.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+  :root { --bg:#0e1014; --card:#171a20; --text:#eceef2; --muted:#9aa1ad; --accent:#7c9cff; --line:#262a33; }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#f6f7f9; --card:#fff; --text:#15171c; --muted:#5b6270; --accent:#3552d6; --line:#e2e5ea; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  .wrap { max-width:880px; margin:0 auto; padding:0 16px; }
+  header { padding:56px 0 32px; text-align:center; }
+  header img { width:96px; height:96px; border-radius:22px; }
+  h1 { font-size:2.4rem; margin:16px 0 8px; }
+  h2 { margin:0 0 12px; }
+  .lead { color:var(--muted); font-size:1.15rem; max-width:620px; margin:0 auto 24px; }
+  .btn { display:inline-block; background:var(--accent); color:#fff; padding:12px 24px; border-radius:10px; text-decoration:none; font-weight:600; }
+  .btn.alt { background:transparent; color:var(--accent); border:1px solid var(--line); margin-left:8px; }
+  .meta { color:var(--muted); font-size:.9rem; margin-top:12px; }
+  section { padding:24px 0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; }
+  .card h3 { margin:0 0 6px; font-size:1.05rem; }
+  .card p { margin:0; color:var(--muted); }
+  ol li { margin-bottom:8px; }
+  .note { border-left:4px solid var(--accent); background:var(--card); padding:12px 16px; border-radius:6px; color:var(--muted); }
+  a { color:var(--accent); }
+  footer { padding:32px 0 48px; color:var(--muted); text-align:center; border-top:1px solid var(--line); margin-top:24px; font-size:.9rem; }
+  @media (max-width:520px) { .btn.alt { margin:12px 0 0; } h1 { font-size:2rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="icon.svg" alt="ReelGuard app icon">
+    <h1>ReelGuard</h1>
+    <p class="lead">Know how many Reels and Shorts you watch, set a daily limit, and stop when you reach it. Everything stays on your phone.</p>
+    <a class="btn" id="dl" href="https://github.com/bilal8492/ReelGuard/releases/latest">Download APK</a>
+    <a class="btn alt" href="https://github.com/bilal8492/ReelGuard">View source</a>
+    <p class="meta" id="ver">Android 8.0+ · Free · Open source (MIT)</p>
+  </header>
+
+  <section>
+    <h2>What it does</h2>
+    <div class="grid">
+      <div class="card"><h3>Counts your swipes</h3><p>Detects when Instagram Reels or YouTube Shorts is on screen and counts each item you move through, per day.</p></div>
+      <div class="card"><h3>Daily limit</h3><p>Pick your own limit and reset time. Get warnings, and a "limit reached" screen once you hit it.</p></div>
+      <div class="card"><h3>Only Reels and Shorts</h3><p>Regular videos, your feed, stories and messages are never blocked.</p></div>
+      <div class="card"><h3>Private by design</h3><p>No account, no analytics, no ads. The app never reads captions, usernames or messages, and the released APK makes no network requests.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Install</h2>
+    <p>ReelGuard is not on Google Play yet, so you install the APK directly.</p>
+    <ol>
+      <li>Tap <strong>Download APK</strong> above and open the file on your phone.</li>
+      <li>When Android asks, allow installs from your browser or file manager.</li>
+      <li>Open ReelGuard and follow the short setup. It explains the Accessibility permission before asking for it.</li>
+      <li>On Android 13+, if the switch is greyed out: <em>Settings &gt; Apps &gt; ReelGuard &gt; &#8942; menu &gt; Allow restricted settings</em>, then turn ReelGuard on under Accessibility.</li>
+    </ol>
+    <p class="meta">Each release includes a <code>.sha256</code> file so you can verify your download.</p>
+  </section>
+
+  <section>
+    <h2>Why Accessibility?</h2>
+    <p>Neither Instagram nor YouTube offers an API for what you are viewing. ReelGuard uses Android's Accessibility Service only to see whether the Reels/Shorts screen is showing and when you swipe. It ignores every other app. You can switch it off any time in Android settings. Read the full <a href="https://github.com/bilal8492/ReelGuard/blob/main/PRIVACY.md">privacy policy</a>.</p>
+    <p class="note">Early release: detection relies on view identifiers that Instagram and YouTube change between versions, and has had limited device testing. If counts look wrong, please <a href="https://github.com/bilal8492/ReelGuard/issues">open an issue</a>.</p>
+  </section>
+
+  <footer>
+    ReelGuard is open source under the <a href="https://github.com/bilal8492/ReelGuard/blob/main/LICENSE">MIT license</a> ·
+    <a href="https://github.com/bilal8492/ReelGuard">GitHub</a> ·
+    <a href="https://github.com/bilal8492/ReelGuard/issues">Report a problem</a><br>
+    Not affiliated with Instagram, Meta, YouTube or Google.
+  </footer>
+</div>
+<script>
+  // Point the button at the newest APK when a release exists; otherwise keep the releases link.
+  fetch("https://api.github.com/repos/bilal8492/ReelGuard/releases/latest")
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (rel) {
+      if (!rel) return;
+      var apk = (rel.assets || []).find(function (a) { return /\.apk$/.test(a.name); });
+      if (apk) document.getElementById("dl").href = apk.browser_download_url;
+      document.getElementById("ver").textContent = "Latest: " + rel.tag_name + " · Android 8.0+ · Free · Open source (MIT)";
+    })
+    .catch(function () {});
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+style:
+  MagicNumber:
+    active: false
+  ReturnCount:
+    active: false
+  MaxLineLength:
+    maxLineLength: 140
+  WildcardImport:
+    active: false
+complexity:
+  LongMethod:
+    threshold: 80
+    ignoreAnnotated: ['Composable']
+  LongParameterList:
+    functionThreshold: 10
+    constructorThreshold: 14
+    ignoreDefaultParameters: true
+  CyclomaticComplexMethod:
+    threshold: 20
+    ignoreAnnotated: ['Composable']
+  TooManyFunctions:
+    active: false
+  NestedBlockDepth:
+    threshold: 5
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable']
+  TopLevelPropertyNaming:
+    active: false
+  MatchingDeclarationName:
+    active: false

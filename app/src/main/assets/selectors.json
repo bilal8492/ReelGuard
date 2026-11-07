@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "notice": "BEST-EFFORT VALUES. VERIFY ON CURRENT APP VERSIONS. None of these view IDs have been confirmed on a real device. Use the Debug/Calibration screen and docs/SELECTORS.md to update them.",
+  "apps": {
+    "com.google.android.youtube": {
+      "label": "YouTube Shorts",
+      "entries": [
+        {
+          "isDefault": true,
+          "viewIds": ["reel_player_page_container", "reel_recycler", "reel_watch_fragment_root", "shorts_player_container"],
+          "signatureViewIds": ["reel_channel_bar", "reel_dyn_headline", "shorts_video_title"],
+          "adViewIds": ["ad_badge", "reel_ad_badge"],
+          "actionDescriptions": ["like this video", "dislike this video", "comments", "share", "remix"],
+          "minActionMatches": 3,
+          "pagerClasses": ["RecyclerView", "ViewPager"],
+          "pagerFillRatio": 0.85,
+          "tabLabels": ["Shorts"],
+          "titleKeywords": ["shorts"],
+          "threshold": 2,
+          "settleMs": 800,
+          "recentSize": 5,
+          "reenterWindowMs": 10000,
+          "outdatedAfterMs": 120000
+        }
+      ]
+    },
+    "com.instagram.android": {
+      "label": "Instagram Reels",
+      "entries": [
+        {
+          "isDefault": true,
+          "viewIds": ["clips_viewer_view_pager", "clips_video_container", "root_clips_layout", "clips_swipe_refresh_container"],
+          "signatureViewIds": ["clips_author_username", "clips_caption_component", "clips_caption"],
+          "adViewIds": ["clips_ad_cta_button", "sponsored_label"],
+          "actionDescriptions": ["like", "comment", "share", "audio", "follow"],
+          "minActionMatches": 3,
+          "pagerClasses": ["RecyclerView", "ViewPager"],
+          "pagerFillRatio": 0.85,
+          "tabLabels": ["Reels"],
+          "titleKeywords": [],
+          "threshold": 2,
+          "settleMs": 800,
+          "recentSize": 5,
+          "reenterWindowMs": 10000,
+          "outdatedAfterMs": 120000
+        }
+      ]
+    }
+  }
+}

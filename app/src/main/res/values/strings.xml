@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ReelGuard</string>
+
+    <!-- Accessibility service -->
+    <string name="service_description">ReelGuard detects whether Instagram Reels or YouTube Shorts is on screen and counts swipes so it can enforce your daily limit. It does not read, store or send any content.</string>
+
+    <!-- Notifications -->
+    <string name="channel_health">Service health</string>
+    <string name="channel_warn">Limit warnings</string>
+    <string name="notif_stopped_title">ReelGuard stopped working</string>
+    <string name="notif_stopped_text">The accessibility service was turned off. Tap to turn it back on.</string>
+    <string name="notif_warn_title">Approaching your daily limit</string>
+    <string name="notif_warn_text">%1$d of %2$d Reels/Shorts watched today.</string>
+
+    <!-- Overlay -->
+    <string name="overlay_title">Daily limit reached</string>
+    <string name="overlay_watched">%1$d watched today (%2$s)</string>
+    <string name="overlay_home">Go to Home screen</string>
+    <string name="overlay_snooze">Snooze 5 minutes</string>
+
+    <!-- Widget -->
+    <string name="widget_ring_desc">%1$d of %2$d Reels and Shorts watched today</string>
+    <string name="widget_limit_reached">Limit reached</string>
+    <string name="widget_left">%1$d left</string>
+    <string name="widget_description">Today\'s Reels and Shorts count</string>
+
+    <!-- Common -->
+    <string name="cancel">Cancel</string>
+    <string name="apply">Apply</string>
+    <string name="nav_today">Today</string>
+    <string name="nav_history">History</string>
+    <string name="nav_settings">Settings</string>
+    <string name="time_min">%1$d min</string>
+    <string name="time_hr_min">%1$d h %2$d min</string>
+
+    <!-- Friction -->
+    <string name="friction_title">Are you sure?</string>
+    <string name="friction_body">This change makes your limit weaker. Take a moment to decide if you really want it.</string>
+    <string name="friction_wait">Wait %1$d seconds to continue</string>
+    <string name="friction_ready">You can continue now</string>
+    <string name="friction_phrase_hint">Type: %1$s</string>
+    <string name="friction_confirm">Confirm</string>
+    <string name="friction_none">No friction</string>
+    <string name="friction_mode_wait">Wait 30 seconds</string>
+    <string name="friction_mode_phrase">Type a phrase</string>
+    <string name="msg_raise_once">You can raise the limit only once per day.</string>
+
+    <!-- Redesign -->
+    <string name="set_schedule">Schedule</string>
+    <string name="overlay_subtitle">%1$s today (%2$s)</string>
+    <string name="status_ok">On track</string>
+    <string name="status_warn">Close to your limit</string>
+    <string name="dash_of">of %1$d</string>
+    <string name="dash_remaining">Remaining</string>
+    <string name="dash_est_short">Est. time</string>
+    <string name="dash_resets">Resets</string>
+    <string name="dash_tile_cap">of %1$d cap</string>
+    <string name="dash_tile_share">watched today</string>
+    <string name="hist_subtitle">Reels and Shorts per day</string>
+    <string name="hist_limit_label">Limit %1$d</string>
+    <string name="hist_selected">%1$s · Shorts %2$d · Reels %3$d</string>
+    <string name="hist_streak_caption">Day streak within limit</string>
+    <string name="hist_best_caption">Best day · %1$s</string>
+    <string name="hist_worst_caption">Worst day · %1$s</string>
+    <string name="friction_seg_none">Off</string>
+    <string name="friction_seg_wait">30 s wait</string>
+    <string name="friction_seg_phrase">Phrase</string>
+    <string name="ob_pt_detects">Detects whether Reels or Shorts is on screen</string>
+    <string name="ob_pt_counts">Counts the swipes</string>
+    <string name="ob_pt_no_content">Never reads or stores videos, captions or messages</string>
+    <string name="ob_pt_no_upload">Nothing leaves your device</string>
+    <string name="health_title">Health check</string>
+    <string name="health_subtitle">Make sure counting keeps running</string>
+    <string name="health_all_good">Everything is running</string>
+    <string name="health_needs_attention">Needs attention</string>
+
+    <!-- Dashboard -->
+    <string name="dash_left">%1$d left</string>
+    <string name="dash_limit_reached">Limit reached</string>
+    <string name="dash_est_time">Estimated time: %1$s</string>
+    <string name="dash_per_app">By app</string>
+    <string name="dash_not_monitored">off</string>
+    <string name="banner_service_off">Detection is off. ReelGuard cannot count until the accessibility service is enabled.</string>
+    <string name="banner_outdated">Detection may be outdated for %1$s.</string>
+    <string name="banner_fix">Fix</string>
+
+    <!-- History -->
+    <string name="hist_7">7 days</string>
+    <string name="hist_30">30 days</string>
+    <string name="hist_none">No data yet.</string>
+    <string name="hist_chart_desc">Bar chart of Reels and Shorts watched per day over the last %1$d days. Daily limit %2$d.</string>
+    <string name="hist_streak">Streak</string>
+    <plurals name="hist_streak_value">
+        <item quantity="one">%1$d day within the limit</item>
+        <item quantity="other">%1$d days within the limit</item>
+    </plurals>
+    <string name="hist_best">Best day</string>
+    <string name="hist_worst">Worst day</string>
+    <string name="hist_day_value">%1$s: %2$d</string>
+    <string name="hist_busiest">Busiest hour (last 30 days)</string>
+    <string name="hist_busiest_value">%1$02d:00</string>
+
+    <!-- Settings -->
+    <string name="set_limits">Daily limits</string>
+    <string name="set_combined_limit">Combined daily limit</string>
+    <string name="set_app_limit">%1$s cap (optional)</string>
+    <string name="set_warn_off">Warning: off</string>
+    <string name="set_warn_at">Warn at %1$d%% of the limit</string>
+    <string name="set_reset">Daily reset time</string>
+    <string name="set_reset_time">Resets at %1$02d:%2$02d</string>
+    <string name="set_monitored">Monitored apps</string>
+    <string name="set_blocking">Blocking</string>
+    <string name="set_blocking_enabled">Block when the limit is reached</string>
+    <string name="set_snooze">Allow one 5-minute snooze per day</string>
+    <string name="set_friction">Friction when weakening settings</string>
+    <string name="set_notifications">Notifications</string>
+    <string name="set_notify_warn">Warn when approaching the limit</string>
+    <string name="set_notify_stop">Notify if detection stops working</string>
+    <string name="set_theme">Theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="set_display">Display</string>
+    <string name="set_show_counter">Show live counter over Reels/Shorts</string>
+    <string name="set_add_widget">Add widget to home screen</string>
+    <string name="set_widget_unsupported">Your launcher cannot add widgets this way. Long-press the home screen, open Widgets and add ReelGuard.</string>
+    <string name="counter_text">%1$s %2$d · Total %3$d/%4$d</string>
+    <string name="set_detection">Detection</string>
+    <string name="set_count_ads">Count ads inside Reels/Shorts</string>
+    <string name="set_fallback">Structural fallback detector</string>
+    <string name="set_fallback_hint">Keeps counting after an app update changes view IDs, but can be less accurate.</string>
+    <string name="set_avg_duration">Average seconds per Reel/Short</string>
+    <string name="set_about">About</string>
+    <string name="set_open_health">Open health check</string>
+    <string name="set_version">Version %1$s</string>
+
+    <!-- Onboarding -->
+    <string name="ob_next">Continue</string>
+    <string name="ob_skip">Skip for now</string>
+    <string name="ob_welcome_title">Welcome to ReelGuard</string>
+    <string name="ob_welcome_body">ReelGuard counts how many Instagram Reels and YouTube Shorts you watch each day, lets you set a limit, and blocks Reels/Shorts when you reach it. Regular videos, your feed, stories and messages are never blocked.</string>
+    <string name="ob_disclosure_title">What ReelGuard accesses</string>
+    <string name="ob_disclosure_body">ReelGuard uses Android\'s Accessibility Service only to detect whether Reels or Shorts is on screen and to count swipes.\n\nIt does not read, collect or store content such as videos, captions, usernames or messages. Nothing is sent anywhere: all data stays on this device, and there is no account or analytics.</string>
+    <string name="ob_agree">I understand, continue</string>
+    <string name="ob_decline">No thanks</string>
+    <string name="ob_declined">ReelGuard cannot work without this permission. You can change your mind at any time.</string>
+    <string name="ob_enable_title">Turn on the accessibility service</string>
+    <string name="ob_enable_body">Open Accessibility settings, choose ReelGuard (it may be under Installed apps), and switch it on.</string>
+    <string name="ob_enabled">Service is on</string>
+    <string name="ob_not_enabled">Service is not on yet</string>
+    <string name="ob_open_settings">Open accessibility settings</string>
+    <string name="ob_restricted_hint">If the switch is greyed out on Android 13+: open the ReelGuard entry in system App info, tap the menu, and choose Allow restricted settings.</string>
+    <string name="ob_done_title">All set</string>
+    <string name="ob_done_body">Your daily limit starts at 50 combined. You can change it in Settings.</string>
+    <string name="ob_finish">Start</string>
+
+    <!-- Health -->
+    <string name="health_service_enabled">Accessibility service enabled</string>
+    <string name="health_service_connected">Accessibility service running</string>
+    <string name="health_battery">Battery optimization exemption</string>
+    <string name="health_detection">Detection: %1$s</string>
+    <string name="health_ok">OK</string>
+    <string name="health_problem">Needs attention</string>
+    <string name="health_outdated_help">Selectors may no longer match the current app version. Enable the structural fallback in Settings, or update selectors (see docs/SELECTORS.md).</string>
+    <string name="health_open_battery">Battery optimization settings</string>
+    <string name="health_open_appinfo">App info</string>
+    <string name="health_steps_title">Keep ReelGuard running</string>
+    <string name="health_steps_xiaomi">Xiaomi/Redmi/POCO: Settings > Apps > Manage apps > ReelGuard > Autostart: on; Battery saver: No restrictions. In Recents, lock ReelGuard (pull down on its card).</string>
+    <string name="health_steps_samsung">Samsung: Settings > Battery > Background usage limits > Never sleeping apps: add ReelGuard. Also remove it from Sleeping and Deep sleeping apps.</string>
+    <string name="health_steps_oneplus">OnePlus/Oppo/Realme: Settings > Battery > Battery optimization > ReelGuard > Don\'t optimize. Then Settings > Apps > ReelGuard > Allow auto-launch / background activity.</string>
+    <string name="health_steps_generic">Allow ReelGuard to run unrestricted in the background: open battery optimization settings and set ReelGuard to Don\'t optimize, and enable autostart or background activity if your phone has that option. If the service gets turned off, re-enable it in Accessibility settings.</string>
+
+    <!-- Debug -->
+    <string name="dbg_hint">Calibration tools. Switch to YouTube or Instagram to watch values update. Text is never shown or saved, only hashes.</string>
+    <string name="dbg_foreground">Foreground package: %1$s</string>
+    <string name="dbg_service">Service connected: %1$s</string>
+    <string name="dbg_version">versionCode: %1$d</string>
+    <string name="dbg_signals">Signals A / B / C: %1$s %2$s %3$s</string>
+    <string name="dbg_details">ID matches: %1$d, action matches: %2$d, full-screen pager: %3$s</string>
+    <string name="dbg_surface">Surface: %1$s</string>
+    <string name="dbg_none">none</string>
+    <string name="dbg_signature">Signature (hash): %1$s</string>
+    <string name="dbg_count">Count today: %1$d</string>
+    <string name="dbg_perf">Last scan: %1$d nodes, %2$d ms</string>
+    <string name="dbg_dump">Dump node tree (in %1$d s, switch to the app now)</string>
+    <string name="dbg_last_file">Saved: %1$s</string>
+    <string name="dbg_share">Share file</string>
+    <string name="dbg_start_rec">Start recording signals</string>
+    <string name="dbg_stop_rec">Stop recording (%1$d signals)</string>
+</resources>
