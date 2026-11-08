@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -33,6 +36,7 @@ import androidx.lifecycle.viewModelScope
 import com.reelguard.R
 import com.reelguard.data.datastore.Apps
 import com.reelguard.data.datastore.HealthRepository
+import com.reelguard.data.datastore.SettingsRepository
 import com.reelguard.domain.LimitStatus
 import com.reelguard.ui.common.AppCard
 import com.reelguard.ui.common.PrimaryButton
@@ -49,6 +53,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class HealthUi(
@@ -56,6 +61,7 @@ data class HealthUi(
     val serviceConnected: Boolean,
     val batteryExempt: Boolean,
     val outdatedApps: Set<String>,
+    val fallbackEnabled: Boolean,
 )
 
 @HiltViewModel
@@ -63,8 +69,13 @@ class HealthViewModel
     @Inject
     constructor(
         health: HealthRepository,
+        private val settingsRepo: SettingsRepository,
         @ApplicationContext private val context: Context,
     ) : ViewModel() {
+        fun setFallback(on: Boolean) {
+            viewModelScope.launch { settingsRepo.setStructuralFallback(on) }
+        }
+
         private val system = MutableStateFlow(read())
 
         private fun read() =
@@ -76,8 +87,8 @@ class HealthViewModel
         }
 
         val state: StateFlow<HealthUi?> =
-            combine(system, health.state) { (enabled, battery), h ->
-                HealthUi(enabled, h.serviceConnected, battery, h.outdatedApps)
+            combine(system, health.state, settingsRepo.settings) { (enabled, battery), h, st ->
+                HealthUi(enabled, h.serviceConnected, battery, h.outdatedApps, st.structuralFallbackEnabled)
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
     }
 
@@ -107,6 +118,27 @@ fun HealthScreen(vm: HealthViewModel = hiltViewModel()) {
         }
         if (s.outdatedApps.isNotEmpty()) {
             Text(stringResource(R.string.health_outdated_help), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        // Only offered when detection looks outdated (or it is already on, so it can be turned off again).
+        if (s.outdatedApps.isNotEmpty() || s.fallbackEnabled) {
+            AppCard(Modifier.fillMaxWidth(), padding = 0.dp) {
+                Row(
+                    Modifier.fillMaxWidth().heightIn(min = 56.dp)
+                        .toggleable(s.fallbackEnabled, role = Role.Switch, onValueChange = vm::setFallback)
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f).padding(end = 12.dp)) {
+                        Text(stringResource(R.string.health_fallback), style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            stringResource(R.string.health_fallback_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Switch(checked = s.fallbackEnabled, onCheckedChange = null)
+                }
+            }
         }
 
         PrimaryButton(

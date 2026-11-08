@@ -115,10 +115,6 @@ class SettingsViewModel
 
         fun setCountAds(on: Boolean) = viewModelScope.launch { repo.setCountAds(on) }
 
-        fun setFallback(on: Boolean) = viewModelScope.launch { repo.setStructuralFallback(on) }
-
-        fun setAvg(sec: Int) = viewModelScope.launch { repo.setAvgDuration(sec) }
-
         fun setTheme(t: ThemeMode) = viewModelScope.launch { repo.setTheme(t) }
 
         fun setNotifyWarn(on: Boolean) = viewModelScope.launch { repo.setNotifyWarn(on) }
@@ -161,13 +157,23 @@ fun SettingsScreen(
 
         SectionHeader(stringResource(R.string.set_limits))
         Group {
-            NumberRow(stringResource(R.string.set_combined_limit), settings.combinedLimit.toString()) { v ->
+            NumberRow(
+                stringResource(R.string.set_combined_limit),
+                settings.combinedLimit.toString(),
+                hint = stringResource(R.string.set_combined_limit_hint),
+            ) { v ->
                 val n = v.toIntOrNull()?.coerceAtLeast(1) ?: return@NumberRow
                 if (n > settings.combinedLimit) gated { vm.setLimit(settings, n) } else vm.setLimit(settings, n)
             }
             Apps.all.forEach { pkg ->
                 val cap = settings.perAppLimits[pkg]
-                NumberRow(stringResource(R.string.set_app_limit, Apps.shortLabel(pkg)), cap?.toString().orEmpty(), allowEmpty = true) { v ->
+                NumberRow(
+                    stringResource(R.string.set_app_limit, Apps.label(pkg)),
+                    cap?.toString().orEmpty(),
+                    hint = stringResource(R.string.set_app_limit_hint, Apps.label(pkg)),
+                    placeholder = stringResource(R.string.set_no_limit),
+                    allowEmpty = true,
+                ) { v ->
                     val n = v.toIntOrNull()?.coerceAtLeast(1)
                     val raising = cap != null && (n == null || n > cap)
                     if (raising) gated { vm.setAppLimit(settings, pkg, n) } else vm.setAppLimit(settings, pkg, n)
@@ -177,14 +183,13 @@ fun SettingsScreen(
             Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
                 Text(
                     if (warn.toInt() == 0) {
-                        stringResource(
-                            R.string.set_warn_off,
-                        )
+                        stringResource(R.string.set_warn_off)
                     } else {
                         stringResource(R.string.set_warn_at, warn.toInt() * 10)
                     },
                     style = MaterialTheme.typography.bodyLarge,
                 )
+                Hint(stringResource(R.string.set_warn_hint))
                 Slider(
                     warn,
                     { warn = it },
@@ -199,35 +204,47 @@ fun SettingsScreen(
                         ),
                 )
             }
-        }
-
-        SectionHeader(stringResource(R.string.set_schedule))
-        Group {
+            RowDivider()
             val h = settings.resetMinutes / 60
             val m = settings.resetMinutes % 60
             ActionRow(stringResource(R.string.set_reset), stringResource(R.string.set_reset_time, h, m)) {
                 TimePickerDialog(context, { _, hh, mm -> vm.setReset(hh * 60 + mm) }, h, m, true).show()
             }
         }
+        if (settings.frictionMode != FrictionMode.NONE) {
+            Hint(stringResource(R.string.set_raise_rule), Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp))
+        }
 
         SectionHeader(stringResource(R.string.set_monitored))
         Group {
             Apps.all.forEach { pkg ->
-                SwitchRow(Apps.label(pkg), null, pkg in settings.monitoredApps) { want ->
+                SwitchRow(Apps.label(pkg), stringResource(R.string.set_monitored_hint), pkg in settings.monitoredApps) { want ->
                     if (!want) gated { vm.setMonitored(pkg, false) } else vm.setMonitored(pkg, true)
                 }
+            }
+            SwitchRow(stringResource(R.string.set_count_ads), stringResource(R.string.set_count_ads_hint), settings.countAds) {
+                vm.setCountAds(it)
             }
         }
 
         SectionHeader(stringResource(R.string.set_blocking))
         Group {
-            SwitchRow(stringResource(R.string.set_blocking_enabled), null, settings.blockingEnabled) { want ->
+            SwitchRow(
+                stringResource(R.string.set_blocking_enabled),
+                stringResource(R.string.set_blocking_hint),
+                settings.blockingEnabled,
+            ) { want ->
                 if (!want) gated { vm.setBlocking(false) } else vm.setBlocking(true)
             }
-            SwitchRow(stringResource(R.string.set_snooze), null, settings.snoozeEnabled) { vm.setSnooze(it) }
+            SwitchRow(stringResource(R.string.set_snooze), stringResource(R.string.set_snooze_hint), settings.snoozeEnabled) {
+                vm.setSnooze(it)
+            }
             val modes = FrictionMode.entries
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(stringResource(R.string.set_friction), style = MaterialTheme.typography.bodyLarge)
+                Column {
+                    Text(stringResource(R.string.set_friction), style = MaterialTheme.typography.bodyLarge)
+                    Hint(stringResource(R.string.set_friction_hint))
+                }
                 Segmented(
                     listOf(
                         stringResource(R.string.friction_seg_none),
@@ -243,9 +260,25 @@ fun SettingsScreen(
             }
         }
 
+        SectionHeader(stringResource(R.string.set_notifications))
+        Group {
+            SwitchRow(stringResource(R.string.set_notify_warn), stringResource(R.string.set_notify_warn_hint), settings.notifyWarn) {
+                vm.setNotifyWarn(it)
+            }
+            SwitchRow(
+                stringResource(R.string.set_notify_stop),
+                stringResource(R.string.set_notify_stop_hint),
+                settings.notifyServiceStop,
+            ) { vm.setNotifyStop(it) }
+        }
+
         SectionHeader(stringResource(R.string.set_display))
         Group {
-            SwitchRow(stringResource(R.string.set_show_counter), null, settings.showCounter) { vm.setShowCounter(it) }
+            SwitchRow(
+                stringResource(R.string.set_show_counter),
+                stringResource(R.string.set_show_counter_hint),
+                settings.showCounter,
+            ) { vm.setShowCounter(it) }
             ActionRow(stringResource(R.string.set_add_widget), null) {
                 if (!requestPinWidget(context)) Toast.makeText(context, R.string.set_widget_unsupported, Toast.LENGTH_LONG).show()
             }
@@ -264,28 +297,6 @@ fun SettingsScreen(
             }
         }
 
-        SectionHeader(stringResource(R.string.set_notifications))
-        Group {
-            SwitchRow(stringResource(R.string.set_notify_warn), null, settings.notifyWarn) { vm.setNotifyWarn(it) }
-            SwitchRow(stringResource(R.string.set_notify_stop), null, settings.notifyServiceStop) { vm.setNotifyStop(it) }
-        }
-
-        SectionHeader(stringResource(R.string.set_detection))
-        Group {
-            SwitchRow(stringResource(R.string.set_count_ads), null, settings.countAds) { vm.setCountAds(it) }
-            SwitchRow(
-                stringResource(R.string.set_fallback),
-                stringResource(R.string.set_fallback_hint),
-                settings.structuralFallbackEnabled,
-            ) {
-                vm.setFallback(it)
-            }
-            NumberRow(
-                stringResource(R.string.set_avg_duration),
-                settings.avgDurationSeconds.toString(),
-            ) { v -> v.toIntOrNull()?.let { vm.setAvg(it) } }
-        }
-
         SectionHeader(stringResource(R.string.set_about))
         Group {
             ActionRow(stringResource(R.string.set_open_health), null, onClick = onOpenHealth)
@@ -299,6 +310,12 @@ fun SettingsScreen(
         }
     }
 }
+
+@Composable
+private fun Hint(
+    text: String,
+    modifier: Modifier = Modifier,
+) = Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = modifier)
 
 @Composable
 private fun Group(content: @Composable () -> Unit) {
@@ -328,9 +345,7 @@ private fun SwitchRow(
     ) {
         Column(Modifier.weight(1f).padding(end = 12.dp)) {
             Text(title, style = MaterialTheme.typography.bodyLarge)
-            if (subtitle != null) {
-                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+            if (subtitle != null) Hint(subtitle)
         }
         Switch(checked = checked, onCheckedChange = null)
     }
@@ -351,9 +366,7 @@ private fun ActionRow(
     ) {
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.bodyLarge)
-            if (subtitle != null) {
-                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+            if (subtitle != null) Hint(subtitle)
         }
         if (chevron) Text("›", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
@@ -364,31 +377,40 @@ private fun ActionRow(
 private fun NumberRow(
     label: String,
     value: String,
+    hint: String? = null,
+    placeholder: String? = null,
     allowEmpty: Boolean = false,
     onApply: (String) -> Unit,
 ) {
     var text by remember(value) { mutableStateOf(value) }
-    Row(
-        Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f).padding(end = 12.dp))
-        OutlinedTextField(
-            value = text,
-            onValueChange = { text = it.filter(Char::isDigit).take(4) },
-            singleLine = true,
-            shape = MaterialTheme.shapes.medium,
-            textStyle = TextStyle(textAlign = TextAlign.Center, fontSize = MaterialTheme.typography.titleMedium.fontSize),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.widthIn(min = 84.dp, max = 96.dp),
-        )
-        val dirty = text != value && (allowEmpty || text.isNotEmpty())
-        if (dirty) {
-            FilledTonalButton(onClick = { onApply(text) }, modifier = Modifier.padding(start = 8.dp).heightIn(min = 48.dp)) {
-                Text(stringResource(R.string.apply))
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 56.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f).padding(end = 12.dp))
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it.filter(Char::isDigit).take(4) },
+                singleLine = true,
+                shape = MaterialTheme.shapes.medium,
+                placeholder =
+                    placeholder?.let { p ->
+                        { Text(p, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) }
+                    },
+                textStyle = TextStyle(textAlign = TextAlign.Center, fontSize = MaterialTheme.typography.titleMedium.fontSize),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.widthIn(min = 84.dp, max = 96.dp),
+            )
+            val dirty = text != value && (allowEmpty || text.isNotEmpty())
+            if (dirty) {
+                FilledTonalButton(onClick = { onApply(text) }, modifier = Modifier.padding(start = 8.dp).heightIn(min = 48.dp)) {
+                    Text(stringResource(R.string.apply))
+                }
             }
         }
+        if (hint != null) Hint(hint, Modifier.padding(top = 4.dp))
     }
     RowDivider()
 }
