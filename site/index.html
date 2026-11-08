@@ -67,8 +67,8 @@
       <img src="icon.svg" alt="ReelGuard app icon">
       <h1>ReelGuard</h1>
       <p class="lead">Know how many Reels and Shorts you watch, set a daily limit, and stop when you reach it. Everything stays on your phone.</p>
-      <a class="btn" id="dl" href="https://github.com/bilal8492/ReelGuard/releases/latest">Download APK</a>
-      <a class="btn alt" href="https://github.com/bilal8492/ReelGuard">View source</a>
+      <a class="btn" id="dl" href="https://github.com/bilal8492/reelguard/releases/latest">Download APK</a>
+      <a class="btn alt" href="https://github.com/bilal8492/reelguard">View source</a>
       <p class="meta" id="ver">Android 8.0+ · Free · Open source (MIT)</p>
     </div>
     <figure style="margin:0">
@@ -116,20 +116,20 @@
 
   <section>
     <h2>Why Accessibility?</h2>
-    <p>Neither Instagram nor YouTube offers an API for what you are viewing. ReelGuard uses Android's Accessibility Service only to see whether the Reels/Shorts screen is showing and when you swipe. It ignores every other app. You can switch it off any time in Android settings. Read the full <a href="https://github.com/bilal8492/ReelGuard/blob/main/PRIVACY.md">privacy policy</a>.</p>
-    <p class="note">Early release: detection relies on view identifiers that Instagram and YouTube change between versions, and has had limited device testing. If counts look wrong, please <a href="https://github.com/bilal8492/ReelGuard/issues">open an issue</a>.</p>
+    <p>Neither Instagram nor YouTube offers an API for what you are viewing. ReelGuard uses Android's Accessibility Service only to see whether the Reels/Shorts screen is showing and when you swipe. It ignores every other app. You can switch it off any time in Android settings. Read the full <a href="https://github.com/bilal8492/reelguard/blob/main/PRIVACY.md">privacy policy</a>.</p>
+    <p class="note">Early release: detection relies on view identifiers that Instagram and YouTube change between versions, and has had limited device testing. If counts look wrong, please <a href="https://github.com/bilal8492/reelguard/issues">open an issue</a>.</p>
   </section>
 
   <footer>
-    ReelGuard is open source under the <a href="https://github.com/bilal8492/ReelGuard/blob/main/LICENSE">MIT license</a> ·
-    <a href="https://github.com/bilal8492/ReelGuard">GitHub</a> ·
-    <a href="https://github.com/bilal8492/ReelGuard/issues">Report a problem</a><br>
+    ReelGuard is open source under the <a href="https://github.com/bilal8492/reelguard/blob/main/LICENSE">MIT license</a> ·
+    <a href="https://github.com/bilal8492/reelguard">GitHub</a> ·
+    <a href="https://github.com/bilal8492/reelguard/issues">Report a problem</a><br>
     Not affiliated with Instagram, Meta, YouTube or Google.
   </footer>
 </div>
 <script>
   // Point the button at the newest APK when a release exists; otherwise keep the releases link.
-  fetch("https://api.github.com/repos/bilal8492/ReelGuard/releases/latest")
+  fetch("https://api.github.com/repos/bilal8492/reelguard/releases/latest")
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (rel) {
       if (!rel) return;

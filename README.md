@@ -1,13 +1,13 @@
 # ReelGuard
 
-[![CI](https://github.com/bilal8492/ReelGuard/actions/workflows/ci.yml/badge.svg)](https://github.com/bilal8492/ReelGuard/actions/workflows/ci.yml)
+[![CI](https://github.com/bilal8492/reelguard/actions/workflows/ci.yml/badge.svg)](https://github.com/bilal8492/reelguard/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 An Android app that counts the Instagram Reels and YouTube Shorts you watch each day, lets you set a daily limit, and
 shows a "limit reached" screen when you hit it. Regular videos, feeds, stories and messages are never blocked.
 Everything stays on your device: no account, no analytics, no ads.
 
-**Website:** https://bilalansari.in/ReelGuard/ · **Download:** [latest release](https://github.com/bilal8492/ReelGuard/releases/latest)
+**Website:** https://bilalansari.in/ReelGuard/ · **Download:** [latest release](https://github.com/bilal8492/reelguard/releases/latest)
 
 ## Screenshots
 
@@ -20,7 +20,7 @@ Everything stays on your device: no account, no analytics, no ads.
 ## Install (APK)
 
 ReelGuard is not on Google Play. Download `ReelGuard-vX.Y.Z.apk` from the
-[Releases page](https://github.com/bilal8492/ReelGuard/releases/latest), open it, and allow installing from your
+[Releases page](https://github.com/bilal8492/reelguard/releases/latest), open it, and allow installing from your
 browser/file manager. Optionally verify the checksum against the `.sha256` file. On Android 13+, if the accessibility
 switch is greyed out: App info > ReelGuard > menu > *Allow restricted settings*, then enable it under Accessibility.
 

@@ -36,4 +36,4 @@ You can turn the service off in Android Settings > Accessibility at any time, sw
 and delete all data by clearing the app's storage or uninstalling it.
 
 ## Contact
-Questions about privacy: open an issue at https://github.com/bilal8492/ReelGuard/issues (or see `SECURITY.md` for private reports).
+Questions about privacy: open an issue at https://github.com/bilal8492/reelguard/issues (or see `SECURITY.md` for private reports).
