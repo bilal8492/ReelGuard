@@ -36,17 +36,51 @@
   a { color:var(--accent); }
   footer { padding:32px 0 48px; color:var(--muted); text-align:center; border-top:1px solid var(--line); margin-top:24px; font-size:.9rem; }
   @media (max-width:520px) { .btn.alt { margin:12px 0 0; } h1 { font-size:2rem; } }
+
+  /* Hero with the promo video in a phone frame */
+  .hero { display:grid; gap:40px; align-items:center; justify-items:center; }
+  .hero-text { max-width:620px; }
+  .phone { position:relative; width:min(300px, 78vw); aspect-ratio:9/16; padding:10px; border-radius:42px;
+    background:linear-gradient(160deg,#3a3d44,#15171b 45%,#2a2d33);
+    box-shadow:0 30px 80px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.06); }
+  .phone::before { content:""; position:absolute; inset:-60px; z-index:-1; border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, rgba(57,135,229,.35), transparent 55%),
+               radial-gradient(circle at 75% 75%, rgba(240,112,58,.28), transparent 55%);
+    filter:blur(30px); }
+  .phone video { display:block; width:100%; height:100%; object-fit:cover; border-radius:33px; background:#0b0c0f; }
+  .play { position:absolute; right:22px; bottom:22px; width:44px; height:44px; border:0; border-radius:50%;
+    background:rgba(0,0,0,.55); color:#fff; cursor:pointer; display:grid; place-items:center;
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+  .play:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+  .play svg { width:18px; height:18px; fill:currentColor; }
+  .hero-caption { color:var(--muted); font-size:.85rem; margin-top:14px; text-align:center; }
+  @media (min-width:760px) {
+    header.hero { grid-template-columns:1fr auto; text-align:left; gap:56px; padding-top:72px; }
+    .hero .lead { margin-left:0; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <img src="icon.svg" alt="ReelGuard app icon">
-    <h1>ReelGuard</h1>
-    <p class="lead">Know how many Reels and Shorts you watch, set a daily limit, and stop when you reach it. Everything stays on your phone.</p>
-    <a class="btn" id="dl" href="https://github.com/bilal8492/ReelGuard/releases/latest">Download APK</a>
-    <a class="btn alt" href="https://github.com/bilal8492/ReelGuard">View source</a>
-    <p class="meta" id="ver">Android 8.0+ · Free · Open source (MIT)</p>
+  <header class="hero">
+    <div class="hero-text">
+      <img src="icon.svg" alt="ReelGuard app icon">
+      <h1>ReelGuard</h1>
+      <p class="lead">Know how many Reels and Shorts you watch, set a daily limit, and stop when you reach it. Everything stays on your phone.</p>
+      <a class="btn" id="dl" href="https://github.com/bilal8492/ReelGuard/releases/latest">Download APK</a>
+      <a class="btn alt" href="https://github.com/bilal8492/ReelGuard">View source</a>
+      <p class="meta" id="ver">Android 8.0+ · Free · Open source (MIT)</p>
+    </div>
+    <figure style="margin:0">
+      <div class="phone">
+        <video id="promo" src="promo.mp4" poster="promo-poster.jpg" muted loop playsinline preload="metadata"
+               aria-label="49-second tour of ReelGuard: counting Reels and Shorts, setting a daily limit, the limit-reached screen, history, widget and privacy"></video>
+        <button class="play" id="promo-toggle" type="button" aria-label="Play video">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path id="promo-icon" d="M8 5v14l11-7z"/></svg>
+        </button>
+      </div>
+      <figcaption class="hero-caption">See it in 49 seconds</figcaption>
+    </figure>
   </header>
 
   <section>
@@ -104,6 +138,24 @@
       document.getElementById("ver").textContent = "Latest: " + rel.tag_name + " · Android 8.0+ · Free · Open source (MIT)";
     })
     .catch(function () {});
+
+  // Promo video: autoplay muted unless the visitor prefers reduced motion; button toggles play/pause.
+  (function () {
+    var v = document.getElementById("promo");
+    var btn = document.getElementById("promo-toggle");
+    var icon = document.getElementById("promo-icon");
+    function sync() {
+      icon.setAttribute("d", v.paused ? "M8 5v14l11-7z" : "M7 5h4v14H7zM13 5h4v14h-4z");
+      btn.setAttribute("aria-label", v.paused ? "Play video" : "Pause video");
+    }
+    v.addEventListener("play", sync);
+    v.addEventListener("pause", sync);
+    btn.addEventListener("click", function () { v.paused ? v.play() : v.pause(); });
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      v.preload = "auto";
+      v.play().catch(function () {});
+    }
+  })();
 </script>
 </body>
 </html>
