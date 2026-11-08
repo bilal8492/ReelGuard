@@ -7,7 +7,7 @@ An Android app that counts the Instagram Reels and YouTube Shorts you watch each
 shows a "limit reached" screen when you hit it. Regular videos, feeds, stories and messages are never blocked.
 Everything stays on your device: no account, no analytics, no ads.
 
-**Website:** https://bilalansari.in/ReelGuard/ · **Download:** [latest release](https://github.com/bilal8492/reelguard/releases/latest)
+**Website:** https://bilalansari.in/reelguard/ · **Download:** [latest release](https://github.com/bilal8492/reelguard/releases/latest)
 
 ## Screenshots
 

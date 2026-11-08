@@ -353,7 +353,7 @@ export const CtaScene: React.FC = () => {
               scale: String(1 + 0.03 * Math.sin(Math.max(0, frame - 60) / 6)),
             }}
           >
-            bilalansari.in/ReelGuard
+            bilalansari.in/reelguard
           </div>
         </Pop>
         <div
