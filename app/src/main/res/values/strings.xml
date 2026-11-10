@@ -69,7 +69,7 @@
     <string name="ob_pt_detects">Detects whether Reels or Shorts is on screen</string>
     <string name="ob_pt_counts">Counts the swipes</string>
     <string name="ob_pt_no_content">Never reads or stores videos, captions or messages</string>
-    <string name="ob_pt_no_upload">Nothing leaves your device</string>
+    <string name="ob_pt_no_upload">What you watch and your counts never leave your device</string>
     <string name="health_title">Health check</string>
     <string name="health_subtitle">Make sure counting keeps running</string>
     <string name="health_all_good">Everything is running</string>
@@ -133,6 +133,13 @@
     <string name="set_display">Display</string>
     <string name="set_show_counter">Show counter while watching</string>
     <string name="set_show_counter_hint">A small counter on top of Reels and Shorts</string>
+    <string name="set_privacy">Privacy</string>
+    <string name="set_usage_stats">Share anonymous usage statistics</string>
+    <string name="set_usage_stats_hint">App opens and your country, never what you watch or your counts. Helps show how many people use ReelGuard.</string>
+    <string name="usage_notice_title">Anonymous usage statistics are on</string>
+    <string name="usage_notice_body">To see how many people use ReelGuard, it shares anonymous numbers such as app opens and your country. It never includes what you watch, your counts or your settings. You can switch this off any time in Settings.</string>
+    <string name="usage_notice_ok">Got it</string>
+    <string name="usage_notice_off">Turn off</string>
     <string name="widget_prompt_title">Add the ReelGuard widget</string>
     <string name="widget_prompt_body">See today\'s count and what is left from your home screen, without opening the app.</string>
     <string name="widget_prompt_add">Add widget</string>
@@ -150,7 +157,7 @@
     <string name="ob_welcome_title">Welcome to ReelGuard</string>
     <string name="ob_welcome_body">ReelGuard counts how many Instagram Reels and YouTube Shorts you watch each day, lets you set a limit, and blocks Reels/Shorts when you reach it. Regular videos, your feed, stories and messages are never blocked.</string>
     <string name="ob_disclosure_title">What ReelGuard accesses</string>
-    <string name="ob_disclosure_body">ReelGuard uses Android\'s Accessibility Service only to detect whether Reels or Shorts is on screen and to count swipes.\n\nIt does not read, collect or store content such as videos, captions, usernames or messages. Nothing is sent anywhere: all data stays on this device, and there is no account or analytics.</string>
+    <string name="ob_disclosure_body">ReelGuard uses Android\'s Accessibility Service only to detect whether Reels or Shorts is on screen and to count swipes.\n\nIt does not read, collect or store content such as videos, captions, usernames or messages. What you watch, your counts and your settings never leave this device, and there is no account.\n\nTo see how many people use ReelGuard, it shares anonymous usage numbers such as app opens and your country. You can switch this off any time in Settings.</string>
     <string name="ob_agree">I understand, continue</string>
     <string name="ob_decline">No thanks</string>
     <string name="ob_declined">ReelGuard cannot work without this permission. You can change your mind at any time.</string>

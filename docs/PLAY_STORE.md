@@ -9,8 +9,11 @@
 
 > **What ReelGuard accesses**
 > ReelGuard uses Android's Accessibility Service only to detect whether Reels or Shorts is on screen and to count swipes.
-> It does not read, collect or store content such as videos, captions, usernames or messages. Nothing is sent anywhere:
-> all data stays on this device, and there is no account or analytics.
+> It does not read, collect or store content such as videos, captions, usernames or messages. What you watch, your
+> counts and your settings never leave this device, and there is no account.
+>
+> To see how many people use ReelGuard, it shares anonymous usage numbers such as app opens and your country. You can
+> switch this off any time in Settings.
 
 This is the text of `ob_disclosure_body` in `strings.xml`; the screen has "I understand, continue" and "No thanks".
 
@@ -29,7 +32,9 @@ identifiers of the foreground app. The overlay uses the accessibility overlay wi
 **Data handled**
 Only booleans (is the Reels/Shorts player visible), timestamps and counts are persisted. For distinguishing items, a
 one-way hash of on-screen identifiers is held in memory (last 5 items) and never stored or transmitted. No screen
-content, text, messages, passwords or personal information is collected, stored, or shared. No network access.
+content, text, messages, passwords or personal information is collected, stored, or shared. The only network use is
+Firebase (anonymous app-usage statistics, on by default and switchable in Settings, and Remote Config); neither includes
+anything from the accessibility service, counts or settings.
 
 **Events and scope**
 `typeWindowStateChanged`, `typeWindowContentChanged`, `typeViewScrolled`. Content and scroll events from apps other than
@@ -40,12 +45,15 @@ Prominent in-app disclosure with affirmative consent before directing the user t
 service themselves in Android Settings and can disable it at any time. Each monitored app can be switched off in the app.
 
 **Not used for**
-Advertising, analytics, monitoring other people, autonomously performing actions on behalf of the user, collecting
+Advertising, analytics of accessibility data (the separate anonymous app-usage statistics contain nothing from the
+service), monitoring other people, autonomously performing actions on behalf of the user, collecting
 credentials, or any purpose other than the one described.
 
 ## Other store-listing notes
 - Privacy policy URL: host `PRIVACY.md` and link it.
-- Data safety form: with Firebase Remote Config active, the Firebase installation ID and diagnostics are collected by
-  Google as a service provider. Declare "Device or other IDs" accordingly (not "No data collected"). Without
-  `google-services.json` nothing is collected.
+- Data safety form: with Firebase active, declare as collected (optional for the user, not shared with third parties,
+  Google acting as service provider, purpose Analytics): App activity (app interactions: first open, sessions), Device or
+  other IDs (Firebase installation ID, app-instance ID), and Approximate location (country/region/city derived from the IP
+  address). The advertising ID is not collected and the AD_ID permission is removed. Without `google-services.json`
+  nothing is collected.
 - Foreground/background behavior: event-driven; no foreground service, no polling.

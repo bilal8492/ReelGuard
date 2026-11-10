@@ -51,6 +51,7 @@ androidx-glance = { module = "androidx.glance:glance-appwidget", version.ref = "
 androidx-glance-material3 = { module = "androidx.glance:glance-material3", version.ref = "glance" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-config = { module = "com.google.firebase:firebase-config-ktx" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 kotlinx-coroutines-play = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "playServicesCoroutines" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }

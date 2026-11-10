@@ -116,6 +116,12 @@ class SettingsViewModel
 
         fun setTheme(t: ThemeMode) = viewModelScope.launch { repo.setTheme(t) }
 
+        fun setShareUsage(on: Boolean) =
+            viewModelScope.launch {
+                repo.setShareUsage(on)
+                repo.setUsageNoticeSeen(true)
+            }
+
         fun setNotifyWarn(on: Boolean) = viewModelScope.launch { repo.setNotifyWarn(on) }
 
         fun setNotifyStop(on: Boolean) = viewModelScope.launch { repo.setNotifyServiceStop(on) }
@@ -276,6 +282,15 @@ fun SettingsScreen(
                     { vm.setTheme(themes[it]) },
                 )
             }
+        }
+
+        SectionHeader(stringResource(R.string.set_privacy))
+        Group {
+            SwitchRow(
+                stringResource(R.string.set_usage_stats),
+                stringResource(R.string.set_usage_stats_hint),
+                settings.shareUsage,
+            ) { vm.setShareUsage(it) }
         }
 
         SectionHeader(stringResource(R.string.set_about))

@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.reelguard.data.repo.ClockEvents
+import com.reelguard.data.repo.UsageStats
 import com.reelguard.detection.DetectionEngine
 import com.reelguard.widget.GlanceWidgetRefresher
 import com.reelguard.work.WorkScheduler
@@ -22,6 +23,8 @@ class ReelGuardApp : Application(), Configuration.Provider {
 
     @Inject lateinit var widgetRefresher: GlanceWidgetRefresher
 
+    @Inject lateinit var usageStats: UsageStats
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
 
@@ -30,6 +33,7 @@ class ReelGuardApp : Application(), Configuration.Provider {
         clock.start()
         engine.start()
         widgetRefresher.start()
+        usageStats.start()
         scheduler.schedule()
     }
 }

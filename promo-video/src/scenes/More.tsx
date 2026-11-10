@@ -224,7 +224,7 @@ export const PrivacyScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const s = spring({ frame, fps, config: { damping: 12 } });
-  const items = ["No account", "No analytics", "No ads", "Nothing leaves your phone"];
+  const items = ["No account", "No ads", "Counts stay on your phone", "Anonymous stats, optional"];
   return (
     <Backdrop glowA={C.good} glowB={C.shorts}>
       <AbsoluteFill style={{ padding: "160px 90px", alignItems: "center", justifyContent: "center", gap: 50 }}>
