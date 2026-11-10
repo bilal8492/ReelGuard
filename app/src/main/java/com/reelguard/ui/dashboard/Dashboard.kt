@@ -18,8 +18,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -68,8 +68,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.format.FormatStyle
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import javax.inject.Inject
 
 data class DashboardState(
@@ -133,9 +133,10 @@ fun DashboardContent(
             LimitStatus.WARN -> stringResource(R.string.status_warn)
             LimitStatus.REACHED -> stringResource(R.string.dash_limit_reached)
         }
-    val date = remember(ls.counts, state.settings.resetMinutes) {
-        LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d MMMM"))
-    }
+    val date =
+        remember(ls.counts, state.settings.resetMinutes) {
+            LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d MMMM"))
+        }
     Column(
         Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(bottom = 112.dp).fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp),

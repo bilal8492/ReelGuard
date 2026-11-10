@@ -204,10 +204,13 @@ fun SettingsScreen(
             RowDivider()
             val h = settings.resetMinutes / 60
             val m = settings.resetMinutes % 60
-            ActionRow(stringResource(R.string.set_reset), stringResource(
+            ActionRow(
+                stringResource(R.string.set_reset),
+                stringResource(
                     R.string.set_reset_time,
                     LocalTime.of(h, m).format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)),
-                )) {
+                ),
+            ) {
                 TimePickerDialog(context, { _, hh, mm -> vm.setReset(hh * 60 + mm) }, h, m, true).show()
             }
         }

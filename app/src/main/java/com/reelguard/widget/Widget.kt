@@ -9,7 +9,6 @@ import android.graphics.Paint
 import android.graphics.RadialGradient
 import android.graphics.RectF
 import android.graphics.Shader
-import androidx.glance.layout.ContentScale
 import android.os.SystemClock
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -35,11 +34,12 @@ import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
+import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Row
-import androidx.glance.layout.fillMaxSize
-import androidx.glance.layout.padding
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.height
+import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
@@ -295,7 +295,19 @@ private fun RingWithCount(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 "${state.total}",
-                style = TextStyle(color = Ink, fontSize = if (huge) 34.sp else if (big) 30.sp else 26.sp, fontWeight = FontWeight.Bold),
+                style =
+                    TextStyle(
+                        color = Ink,
+                        fontSize =
+                            if (huge) {
+                                34.sp
+                            } else if (big) {
+                                30.sp
+                            } else {
+                                26.sp
+                            },
+                        fontWeight = FontWeight.Bold,
+                    ),
             )
             Text(
                 "of ${state.limit}",

@@ -138,7 +138,11 @@ class DetectionEngine
                 val day = DayKey.of(System.currentTimeMillis(), s.resetMinutes)
                 val nowMs = System.currentTimeMillis()
                 OverlayModel(
-                    pkg, Apps.label(pkg), watched, limit, s.snoozeEnabled && s.snoozeUsedDay != day,
+                    pkg,
+                    Apps.label(pkg),
+                    watched,
+                    limit,
+                    s.snoozeEnabled && s.snoozeUsedDay != day,
                     DayKey.nextReset(nowMs, s.resetMinutes),
                 )
             }.distinctUntilChanged().stateIn(scope, SharingStarted.Eagerly, null)
