@@ -89,6 +89,11 @@
   .shots figcaption { color:var(--muted); font-size:.9rem; margin-top:8px; }
   ol li { margin-bottom:8px; }
   .note { border-left:4px solid var(--accent); background:var(--card); padding:12px 16px; border-radius:6px; color:var(--muted); }
+  details.help { margin-top:16px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 16px; }
+  details.help summary { cursor:pointer; font-weight:600; }
+  details.help[open] summary { margin-bottom:8px; }
+  details.help code { overflow-wrap:anywhere; }
+  details.help p:last-child, details.help ol:last-child { margin-bottom:0; }
   a { color:var(--accent); }
   footer { padding:32px 0 48px; color:var(--muted); text-align:center; border-top:1px solid var(--line); margin-top:24px; font-size:.9rem; }
   @media (max-width:520px) { .btn.alt { margin:12px 0 0; } h1 { font-size:2rem; } }
@@ -167,11 +172,20 @@
     <p>ReelGuard is not on Google Play yet, so you install the APK directly.</p>
     <ol>
       <li>Tap <strong>Download APK</strong> above and open the file on your phone.</li>
-      <li>When Android asks, allow installs from your browser or file manager.</li>
+      <li>When Android asks, allow installs from your browser or file manager. If it says <em>&ldquo;App blocked to protect your device&rdquo;</em>, <a href="#blocked">see below</a>.</li>
       <li>Open ReelGuard and follow the short setup. It explains the Accessibility permission before asking for it.</li>
       <li>On Android 13+, if the switch is greyed out: <em>Settings &gt; Apps &gt; ReelGuard &gt; &#8942; menu &gt; Allow restricted settings</em>, then turn ReelGuard on under Accessibility.</li>
     </ol>
     <p class="meta">Each release includes a <code>.sha256</code> file so you can verify your download.</p>
+    <details class="help" id="blocked">
+      <summary>Android says &ldquo;App blocked to protect your device&rdquo;?</summary>
+      <p>In some countries (India is one) Google Play Protect blocks apps that use an accessibility service when they are installed from a browser or file manager. It shows <em>&ldquo;App blocked to protect your device&rdquo;</em> with only an <strong>OK</strong> button. Google does this as an anti-fraud measure, based on the permissions an app asks for, not because a scan found anything wrong (<a href="https://developers.google.com/android/play-protect/warning-dev-guidance" rel="noopener">Google&rsquo;s explanation</a>). ReelGuard needs an accessibility service to see whether Reels/Shorts is on screen, so it is caught by the rule. You can check your download against the <code>.sha256</code> file from the same release.</p>
+      <p>Ways to install anyway:</p>
+      <ol>
+        <li><strong>From a computer over USB.</strong> Install Android&rsquo;s <a href="https://developer.android.com/tools/releases/platform-tools" rel="noopener">platform-tools</a>, turn on <em>USB debugging</em> on the phone (Settings &gt; Developer options), connect it and run <code>adb install ReelGuard-vX.Y.Z.apk</code>. No security setting has to change, and it worked in our tests with Play Protect left on.</li>
+        <li><strong>Pause Play Protect while you install.</strong> In the Play Store tap your profile picture &gt; <em>Play Protect</em> &gt; the gear icon and turn off <em>Scan apps with Play Protect</em>, install ReelGuard, then turn it back on. Some people get past the block this way, but we have not confirmed it on every phone, and your phone is less protected until you switch it back on.</li>
+      </ol>
+    </details>
   </section>
 
   <section>
@@ -203,6 +217,11 @@
     });
     sync();
   })();
+
+  // Open the install help when the page is linked to it (#blocked).
+  function openHelp() { if (location.hash === "#blocked") document.getElementById("blocked").open = true; }
+  openHelp();
+  window.addEventListener("hashchange", openHelp);
 
   // Point the button at the newest APK when a release exists; otherwise keep the releases link.
   fetch("https://api.github.com/repos/bilal8492/reelguard/releases/latest")
