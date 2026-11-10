@@ -18,12 +18,12 @@ if (file("google-services.json").exists()) {
 
 android {
     namespace = "com.reelguard"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.reelguard"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         // CI overrides these with -PappVersionName / -PappVersionCode when building a release.
         versionCode = (findProperty("appVersionCode") as String?)?.toInt() ?: 1
         versionName = (findProperty("appVersionName") as String?) ?: "0.1.0"
