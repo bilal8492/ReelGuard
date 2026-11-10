@@ -1,6 +1,7 @@
 package com.reelguard.ui.dashboard
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -52,6 +55,8 @@ import com.reelguard.ui.common.StatusGlyph
 import com.reelguard.ui.common.formatMinutes
 import com.reelguard.ui.theme.color
 import com.reelguard.ui.theme.extra
+import com.reelguard.widget.hasWidget
+import com.reelguard.widget.requestPinWidget
 import com.reelguard.work.isServiceEnabled
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -60,7 +65,10 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.FormatStyle
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -69,6 +77,7 @@ data class DashboardState(
     val settings: Settings,
     val outdatedApps: Set<String>,
     val serviceEnabled: Boolean,
+    val showWidgetPrompt: Boolean,
 )
 
 @HiltViewModel
@@ -76,19 +85,26 @@ class DashboardViewModel
     @Inject
     constructor(
         engine: DetectionEngine,
-        settings: SettingsRepository,
+        private val settings: SettingsRepository,
         health: HealthRepository,
         @ApplicationContext private val context: Context,
     ) : ViewModel() {
         private val enabled = MutableStateFlow(isServiceEnabled(context))
 
+        private val widgetPlaced = MutableStateFlow(hasWidget(context))
+
         fun refresh() {
             enabled.value = isServiceEnabled(context)
+            widgetPlaced.value = hasWidget(context)
+        }
+
+        fun dismissWidgetPrompt() {
+            viewModelScope.launch { settings.setWidgetPromptDismissed(true) }
         }
 
         val state: StateFlow<DashboardState?> =
-            combine(engine.limitState, settings.settings, health.state, enabled) { ls, s, h, en ->
-                ls?.let { DashboardState(it, s, h.outdatedApps, en) }
+            combine(engine.limitState, settings.settings, health.state, enabled, widgetPlaced) { ls, s, h, en, placed ->
+                ls?.let { DashboardState(it, s, h.outdatedApps, en, s.onboardingDone && !placed && !s.widgetPromptDismissed) }
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
     }
 
@@ -99,14 +115,16 @@ fun DashboardScreen(
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { vm.refresh() }
-    state?.let { DashboardContent(it, onOpenHealth) }
+    state?.let { DashboardContent(it, onOpenHealth, onDismissWidgetPrompt = vm::dismissWidgetPrompt) }
 }
 
 @Composable
 fun DashboardContent(
     state: DashboardState,
     onOpenHealth: () -> Unit,
+    onDismissWidgetPrompt: () -> Unit = {},
 ) {
+    val context = LocalContext.current
     val ls = state.limit
     val progress = if (ls.limit > 0) ls.total.toFloat() / ls.limit else 0f
     val statusLabel =
@@ -115,7 +133,9 @@ fun DashboardContent(
             LimitStatus.WARN -> stringResource(R.string.status_warn)
             LimitStatus.REACHED -> stringResource(R.string.dash_limit_reached)
         }
-    val date = remember(Unit) { LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d MMMM")) }
+    val date = remember(ls.counts, state.settings.resetMinutes) {
+        LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d MMMM"))
+    }
     Column(
         Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(bottom = 112.dp).fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -123,6 +143,15 @@ fun DashboardContent(
         ScreenTitle(stringResource(R.string.nav_today), date)
         if (!state.serviceEnabled) Banner(stringResource(R.string.banner_service_off), onOpenHealth)
         state.outdatedApps.forEach { Banner(stringResource(R.string.banner_outdated, Apps.label(it)), onOpenHealth) }
+
+        if (state.showWidgetPrompt) {
+            WidgetPrompt(
+                onAdd = {
+                    if (!requestPinWidget(context)) Toast.makeText(context, R.string.set_widget_unsupported, Toast.LENGTH_LONG).show()
+                },
+                onDismiss = onDismissWidgetPrompt,
+            )
+        }
 
         AppCard(Modifier.fillMaxWidth(), padding = 24.dp) {
             Column(
@@ -152,7 +181,8 @@ fun DashboardContent(
                     Metric(stringResource(R.string.dash_est_short), formatMinutes(ls.total * state.settings.avgDurationSeconds))
                     Metric(
                         stringResource(R.string.dash_resets),
-                        "%02d:%02d".format(state.settings.resetMinutes / 60, state.settings.resetMinutes % 60),
+                        LocalTime.of(state.settings.resetMinutes / 60, state.settings.resetMinutes % 60)
+                            .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)),
                     )
                 }
             }
@@ -211,6 +241,37 @@ private fun AppTile(
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+    }
+}
+
+@Composable
+private fun WidgetPrompt(
+    onAdd: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Surface(
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.primaryContainer,
+        modifier = Modifier.fillMaxWidth().testTag("widget_prompt"),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(
+                stringResource(R.string.widget_prompt_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            Text(
+                stringResource(R.string.widget_prompt_body),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Button(onClick = onAdd, modifier = Modifier.heightMinimum()) { Text(stringResource(R.string.widget_prompt_add)) }
+                TextButton(onClick = onDismiss, modifier = Modifier.heightMinimum()) {
+                    Text(stringResource(R.string.widget_prompt_later), color = MaterialTheme.colorScheme.onPrimaryContainer)
+                }
+            }
         }
     }
 }

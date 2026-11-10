@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
@@ -22,18 +23,25 @@ class CountRepository
     constructor(
         private val dao: ReelDao,
         private val settings: SettingsRepository,
+        private val clock: ClockEvents,
     ) {
-        /** Emits the current day key, and again whenever the reset boundary passes (timer, not polling). */
+        /**
+         * Emits the current day key, and again when the reset boundary passes. The timer is only a fast path while the phone is
+         * awake; [ClockEvents] (screen on, unlock, date/time change) re-read the real clock so a sleeping phone never stays on
+         * yesterday's day.
+         */
         @OptIn(ExperimentalCoroutinesApi::class)
         fun todayKey(): Flow<String> =
             settings.settings.map { it.resetMinutes }.distinctUntilChanged().flatMapLatest { reset ->
-                flow {
-                    while (true) {
-                        val now = System.currentTimeMillis()
-                        emit(DayKey.of(now, reset))
-                        delay((DayKey.nextReset(now, reset) - now).coerceAtLeast(1_000L) + 50L)
+                val timer =
+                    flow {
+                        while (true) {
+                            val now = System.currentTimeMillis()
+                            emit(Unit)
+                            delay((DayKey.nextReset(now, reset) - now).coerceIn(1_000L, MAX_TIMER_MS) + 50L)
+                        }
                     }
-                }
+                merge(timer, clock.events).map { DayKey.of(System.currentTimeMillis(), reset) }
             }.distinctUntilChanged()
 
         @OptIn(ExperimentalCoroutinesApi::class)
@@ -82,5 +90,6 @@ class CountRepository
 
         companion object {
             const val RETENTION_MS = 30L * 24 * 60 * 60 * 1000
+            private const val MAX_TIMER_MS = 30_000L
         }
     }

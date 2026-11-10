@@ -24,7 +24,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -44,6 +46,7 @@ class WorkScheduler
     constructor(
         @ApplicationContext private val context: Context,
         private val settings: SettingsRepository,
+        private val alarm: ResetAlarm,
         @ApplicationScope private val scope: CoroutineScope,
     ) {
         private val wm get() = WorkManager.getInstance(context)
@@ -54,11 +57,13 @@ class WorkScheduler
                 ExistingPeriodicWorkPolicy.KEEP,
                 PeriodicWorkRequestBuilder<WidgetRefreshWorker>(30, TimeUnit.MINUTES).build(),
             )
-            scope.launch { scheduleReset(settings.settings.first().resetMinutes) }
+            // Re-arms the reset whenever the reset time changes (and once now).
+            scope.launch { settings.settings.map { it.resetMinutes }.distinctUntilChanged().collect { scheduleReset(it) } }
         }
 
         /** One-shot work at the next reset boundary; the worker re-schedules itself. Call again when the reset time changes. */
         fun scheduleReset(resetMinutes: Int) {
+            alarm.schedule(resetMinutes)
             val now = System.currentTimeMillis()
             val delay = (DayKey.nextReset(now, resetMinutes) - now).coerceAtLeast(1_000L)
             wm.enqueueUniqueWork(

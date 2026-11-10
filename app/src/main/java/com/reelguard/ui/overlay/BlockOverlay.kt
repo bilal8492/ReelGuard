@@ -20,6 +20,10 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.reelguard.R
 import com.reelguard.detection.OverlayModel
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 /** A full ring in a status colour, drawn behind the count on the block screen. */
 private class RingView(context: Context, private val ringColor: Int, private val trackColor: Int) : View(context) {
@@ -112,6 +116,7 @@ class BlockOverlay(private val service: AccessibilityService) {
         col.addView(ring, LinearLayout.LayoutParams(ringSize, ringSize))
         col.addView(label(themed.getString(R.string.overlay_title), 28f, "#F0EFEC", bold = true).apply { setPadding(0, dp(28), 0, dp(6)) })
         col.addView(label(model.appLabel, 16f, "#C3C2B7"))
+        col.addView(label(resetText(model.resetAt), 15f, "#C3C2B7").apply { setPadding(0, dp(14), 0, 0) })
         col.addView(pill(themed.getString(R.string.overlay_home), "#3987E5", "#001B3A", onHome).also { it.setMargin(top = 36) })
         if (model.snoozeAvailable) {
             col.addView(pill(themed.getString(R.string.overlay_snooze), "#242422", "#F0EFEC", onSnooze).also { it.setMargin(top = 12) })
@@ -122,6 +127,16 @@ class BlockOverlay(private val service: AccessibilityService) {
         )
         root.contentDescription = themed.getString(R.string.overlay_title)
         return root
+    }
+
+    /** "Resets at 12:00 AM · in 4 h 16 min", so it is clear when watching is possible again. */
+    private fun resetText(resetAt: Long): String {
+        val zone = ZoneId.systemDefault()
+        val at = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).format(Instant.ofEpochMilli(resetAt).atZone(zone))
+        val mins = ((resetAt - System.currentTimeMillis()) / 60_000L).coerceAtLeast(1L).toInt()
+        val left =
+            if (mins >= 60) themed.getString(R.string.time_hr_min, mins / 60, mins % 60) else themed.getString(R.string.time_min, mins)
+        return themed.getString(R.string.overlay_resets, at, left)
     }
 
     private fun View.setMargin(top: Int) {

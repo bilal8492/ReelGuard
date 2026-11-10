@@ -38,7 +38,14 @@ import javax.inject.Singleton
 
 data class CounterModel(val appLabel: String, val appCount: Int, val total: Int, val limit: Int, val status: LimitStatus)
 
-data class OverlayModel(val pkg: String, val appLabel: String, val watched: Int, val limit: Int, val snoozeAvailable: Boolean)
+data class OverlayModel(
+    val pkg: String,
+    val appLabel: String,
+    val watched: Int,
+    val limit: Int,
+    val snoozeAvailable: Boolean,
+    val resetAt: Long,
+)
 
 data class AppDebug(
     val signalA: Boolean = false,
@@ -88,7 +95,7 @@ class DetectionEngine
 
             data class Params(val params: Map<String, CounterParams>) : Msg
 
-            data class Flags(val countAds: Boolean, val fallback: Boolean) : Msg
+            data class Flags(val fallback: Boolean) : Msg
         }
 
         private val channel = Channel<Msg>(Channel.UNLIMITED)
@@ -129,7 +136,11 @@ class DetectionEngine
                 val watched = if (ls.total >= ls.limit) ls.total else ls.counts[pkg] ?: 0
                 val limit = if (ls.total >= ls.limit) ls.limit else s.perAppLimits[pkg] ?: ls.limit
                 val day = DayKey.of(System.currentTimeMillis(), s.resetMinutes)
-                OverlayModel(pkg, Apps.label(pkg), watched, limit, s.snoozeEnabled && s.snoozeUsedDay != day)
+                val nowMs = System.currentTimeMillis()
+                OverlayModel(
+                    pkg, Apps.label(pkg), watched, limit, s.snoozeEnabled && s.snoozeUsedDay != day,
+                    DayKey.nextReset(nowMs, s.resetMinutes),
+                )
             }.distinctUntilChanged().stateIn(scope, SharingStarted.Eagerly, null)
 
         /** Non-null while Reels/Shorts is on screen, the live counter is enabled and the block screen is not showing. */
@@ -151,7 +162,6 @@ class DetectionEngine
                         is Msg.Signal -> handle(msg.signal)
                         is Msg.Params -> counter.updateParams(msg.params)
                         is Msg.Flags -> {
-                            counter.countAds = msg.countAds
                             counter.structuralFallback = msg.fallback
                         }
                     }
@@ -160,7 +170,7 @@ class DetectionEngine
             scope.launch {
                 settingsRepo.settings.collect { s ->
                     monitoredPackages = s.monitoredApps
-                    channel.send(Msg.Flags(s.countAds, s.structuralFallbackEnabled))
+                    channel.send(Msg.Flags(s.structuralFallbackEnabled))
                 }
             }
             scope.launch {

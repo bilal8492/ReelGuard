@@ -63,6 +63,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import javax.inject.Inject
 
 @HiltViewModel
@@ -111,10 +114,6 @@ class SettingsViewModel
 
         fun setSnooze(on: Boolean) = viewModelScope.launch { repo.setSnoozeEnabled(on) }
 
-        fun setFriction(m: FrictionMode) = viewModelScope.launch { repo.setFrictionMode(m) }
-
-        fun setCountAds(on: Boolean) = viewModelScope.launch { repo.setCountAds(on) }
-
         fun setTheme(t: ThemeMode) = viewModelScope.launch { repo.setTheme(t) }
 
         fun setNotifyWarn(on: Boolean) = viewModelScope.launch { repo.setNotifyWarn(on) }
@@ -123,8 +122,6 @@ class SettingsViewModel
 
         fun setShowCounter(on: Boolean) = viewModelScope.launch { repo.setShowCounter(on) }
     }
-
-private fun FrictionMode.strength() = ordinal
 
 @Composable
 fun SettingsScreen(
@@ -207,7 +204,10 @@ fun SettingsScreen(
             RowDivider()
             val h = settings.resetMinutes / 60
             val m = settings.resetMinutes % 60
-            ActionRow(stringResource(R.string.set_reset), stringResource(R.string.set_reset_time, h, m)) {
+            ActionRow(stringResource(R.string.set_reset), stringResource(
+                    R.string.set_reset_time,
+                    LocalTime.of(h, m).format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)),
+                )) {
                 TimePickerDialog(context, { _, hh, mm -> vm.setReset(hh * 60 + mm) }, h, m, true).show()
             }
         }
@@ -222,9 +222,6 @@ fun SettingsScreen(
                     if (!want) gated { vm.setMonitored(pkg, false) } else vm.setMonitored(pkg, true)
                 }
             }
-            SwitchRow(stringResource(R.string.set_count_ads), stringResource(R.string.set_count_ads_hint), settings.countAds) {
-                vm.setCountAds(it)
-            }
         }
 
         SectionHeader(stringResource(R.string.set_blocking))
@@ -238,25 +235,6 @@ fun SettingsScreen(
             }
             SwitchRow(stringResource(R.string.set_snooze), stringResource(R.string.set_snooze_hint), settings.snoozeEnabled) {
                 vm.setSnooze(it)
-            }
-            val modes = FrictionMode.entries
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Column {
-                    Text(stringResource(R.string.set_friction), style = MaterialTheme.typography.bodyLarge)
-                    Hint(stringResource(R.string.set_friction_hint))
-                }
-                Segmented(
-                    listOf(
-                        stringResource(R.string.friction_seg_none),
-                        stringResource(R.string.friction_seg_wait),
-                        stringResource(R.string.friction_seg_phrase),
-                    ),
-                    modes.indexOf(settings.frictionMode),
-                    { i ->
-                        val mode = modes[i]
-                        if (mode.strength() < settings.frictionMode.strength()) gated { vm.setFriction(mode) } else vm.setFriction(mode)
-                    },
-                )
             }
         }
 
