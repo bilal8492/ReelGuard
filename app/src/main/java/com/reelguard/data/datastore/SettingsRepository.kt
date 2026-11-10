@@ -39,7 +39,6 @@ internal object Keys {
     val showCounter = booleanPreferencesKey("show_counter")
     val widgetPromptDismissed = booleanPreferencesKey("widget_prompt_dismissed")
     val shareUsage = booleanPreferencesKey("share_usage")
-    val usageNoticeSeen = booleanPreferencesKey("usage_notice_seen")
 }
 
 @Singleton
@@ -91,8 +90,6 @@ class SettingsRepository
         suspend fun setWidgetPromptDismissed(v: Boolean) = edit { it[Keys.widgetPromptDismissed] = v }
 
         suspend fun setShareUsage(v: Boolean) = edit { it[Keys.shareUsage] = v }
-
-        suspend fun setUsageNoticeSeen(v: Boolean) = edit { it[Keys.usageNoticeSeen] = v }
 
         /**
          * Sets the combined limit. Lowering is always allowed; raising is allowed at most once per [dayKey].
@@ -185,7 +182,6 @@ private fun Preferences.toSettings(): Settings {
         showCounter = this[Keys.showCounter] ?: d.showCounter,
         widgetPromptDismissed = this[Keys.widgetPromptDismissed] ?: d.widgetPromptDismissed,
         shareUsage = this[Keys.shareUsage] ?: d.shareUsage,
-        usageNoticeSeen = this[Keys.usageNoticeSeen] ?: d.usageNoticeSeen,
     )
 }
 

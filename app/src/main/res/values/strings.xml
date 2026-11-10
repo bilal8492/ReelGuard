@@ -136,10 +136,6 @@
     <string name="set_privacy">Privacy</string>
     <string name="set_usage_stats">Share anonymous usage statistics</string>
     <string name="set_usage_stats_hint">App opens and your country, never what you watch or your counts. Helps show how many people use ReelGuard.</string>
-    <string name="usage_notice_title">Anonymous usage statistics are on</string>
-    <string name="usage_notice_body">To see how many people use ReelGuard, it shares anonymous numbers such as app opens and your country. It never includes what you watch, your counts or your settings. You can switch this off any time in Settings.</string>
-    <string name="usage_notice_ok">Got it</string>
-    <string name="usage_notice_off">Turn off</string>
     <string name="widget_prompt_title">Add the ReelGuard widget</string>
     <string name="widget_prompt_body">See today\'s count and what is left from your home screen, without opening the app.</string>
     <string name="widget_prompt_add">Add widget</string>

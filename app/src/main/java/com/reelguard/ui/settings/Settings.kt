@@ -116,11 +116,7 @@ class SettingsViewModel
 
         fun setTheme(t: ThemeMode) = viewModelScope.launch { repo.setTheme(t) }
 
-        fun setShareUsage(on: Boolean) =
-            viewModelScope.launch {
-                repo.setShareUsage(on)
-                repo.setUsageNoticeSeen(true)
-            }
+        fun setShareUsage(on: Boolean) = viewModelScope.launch { repo.setShareUsage(on) }
 
         fun setNotifyWarn(on: Boolean) = viewModelScope.launch { repo.setNotifyWarn(on) }
 
