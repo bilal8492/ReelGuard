@@ -58,6 +58,7 @@ class SurfaceDetector {
         var durationHash: Long? = null
         var isAd = false
         var signalC = false
+        var tabSelected = false
         val actions = entry.actionDescriptions.map { it.lowercase() }
         val tabs = entry.tabLabels.map { it.lowercase() }
         val titles = entry.titleKeywords.map { it.lowercase() }
@@ -97,6 +98,7 @@ class SurfaceDetector {
                 signature = sig,
                 isAd = ctx.isAd,
                 pagerScrolling = verticalScroll && ctx.pagerFound,
+                tabSelected = ctx.tabSelected,
             )
         val ms = (System.nanoTime() - t0) / 1_000_000
         return frame to ScanDebug(a, b, c, ctx.idMatches.size, ctx.actionHits.size, ctx.pagerFound, ctx.nodes, ms, sig, ctx.isAd, source)
@@ -192,10 +194,9 @@ class SurfaceDetector {
                 actionHit = true
             }
         }
-        if (!ctx.signalC) {
-            val selectedTab = node.isSelected && ctx.tabs.any { lower.contains(it) }
-            ctx.signalC = selectedTab || ctx.titles.any { lower.trim() == it }
-        }
+        val selectedTab = node.isSelected && ctx.tabs.any { lower.contains(it) }
+        if (selectedTab) ctx.tabSelected = true
+        if (!ctx.signalC) ctx.signalC = selectedTab || ctx.titles.any { lower.trim() == it }
         val looksLikeCaption = cls.endsWith("TextView") && lower.length >= 3 && lower.any { it.isLetter() }
         val wantsMore = inPager && !actionHit
         if (wantsMore && looksLikeCaption && ctx.fallbackHashes.size < 6) {

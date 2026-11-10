@@ -31,6 +31,24 @@ class ReelCounterTest {
         scrolling: Boolean = false,
     ) = feed(Frame(t, pkg, signalA = false, signalB = false, signalC = false, pagerScrolling = scrolling))
 
+    /** What Instagram's ordinary home feed looks like: a full-screen scrolling list with Like/Comment/Share, but no Reels sign. */
+    private fun plainFeed(
+        t: Long,
+        pkg: String = ig,
+    ) = feed(Frame(t, pkg, signalA = false, signalB = true, signalC = false, pagerScrolling = true))
+
+    /** The Reels/Shorts tab is selected but only one signal passes, so the surface is not recognised. */
+    private fun tabOnly(
+        t: Long,
+        pkg: String = yt,
+    ) = feed(Frame(t, pkg, signalA = false, signalB = false, signalC = true, tabSelected = true))
+
+    /** A configured view id is on screen but nothing else matches. */
+    private fun idOnly(
+        t: Long,
+        pkg: String = yt,
+    ) = feed(Frame(t, pkg, signalA = true, signalB = false, signalC = false))
+
     /** Swipe to [sig] at [t] and let it settle (event, then another event after settle time). */
     private fun swipe(
         t: Long,
@@ -181,11 +199,11 @@ class ReelCounterTest {
     }
 
     @Test
-    fun `flags detection outdated after 2 minutes of pager scrolling without activation`() {
-        off(0, scrolling = true)
-        off(60_000, scrolling = true)
+    fun `flags detection outdated after 2 minutes when the Reels tab is selected but the surface is not recognised`() {
+        tabOnly(0)
+        tabOnly(60_000)
         events.none { it is CountEvent.OutdatedChanged } shouldBe true
-        off(125_000, scrolling = true)
+        tabOnly(125_000)
         events.last() shouldBe CountEvent.OutdatedChanged(125_000, yt, true)
         counter.isOutdated(yt) shouldBe true
         on(130_000, 1)
@@ -193,9 +211,28 @@ class ReelCounterTest {
     }
 
     @Test
-    fun `no outdated flag without pager scrolling or when detection works`() {
+    fun `flags detection outdated when a configured view id is seen but the surface is not recognised`() {
+        idOnly(0)
+        idOnly(125_000)
+        events.last() shouldBe CountEvent.OutdatedChanged(125_000, yt, true)
+    }
+
+    @Test
+    fun `scrolling an ordinary feed is not mistaken for outdated detection`() {
+        // Regression: Instagram's home feed passes the pager signal, and scrolling it for minutes used to raise the warning.
+        for (t in 0L..600_000L step 5_000L) plainFeed(t)
+        events.none { it is CountEvent.OutdatedChanged } shouldBe true
+        counter.isOutdated(ig) shouldBe false
+    }
+
+    @Test
+    fun `no outdated flag without any sign of Reels or when detection works`() {
         off(0)
         off(200_000)
+        events.none { it is CountEvent.OutdatedChanged } shouldBe true
+        on(300_000, 1)
+        tabOnly(310_000)
+        tabOnly(500_000)
         events.none { it is CountEvent.OutdatedChanged } shouldBe true
     }
 }

@@ -169,6 +169,9 @@ class DetectionEngine
         fun start() {
             if (started) return
             started = true
+            // The counter starts every process with a clean slate, so a flag saved by an earlier run could otherwise never be
+            // cleared by a later successful detection and would stay on screen.
+            scope.launch { health.clearOutdated() }
             scope.launch {
                 for (msg in channel) {
                     when (msg) {

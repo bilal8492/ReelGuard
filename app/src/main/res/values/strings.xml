@@ -180,7 +180,7 @@
     <string name="health_problem">Needs attention</string>
     <string name="health_outdated_help">An update to Instagram or YouTube may stop ReelGuard from counting correctly. Turn on backup counting below, or update ReelGuard when a new version is available.</string>
     <string name="health_fallback">Backup counting</string>
-    <string name="health_fallback_hint">Keeps counting after Instagram or YouTube updates, but may sometimes count things that aren\'t Reels or Shorts.</string>
+    <string name="health_fallback_hint">Keeps counting after Instagram or YouTube updates, but also counts things that aren\'t Reels or Shorts, such as posts in your normal Instagram feed.</string>
     <string name="health_open_battery">Battery optimization settings</string>
     <string name="health_open_appinfo">App info</string>
     <string name="health_steps_title">Keep ReelGuard running</string>

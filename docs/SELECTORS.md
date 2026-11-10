@@ -20,7 +20,13 @@ found, the first few caption-like TextViews inside the pager are hashed instead.
 Only hashes exist, in memory.
 
 **Structural fallback** (Settings > Detection) counts the surface as active on Signal B alone, so counting survives
-renamed IDs. It is less precise, so it is off by default.
+renamed IDs. It is less precise, so it is off by default. On Instagram, Signal B also passes on the ordinary home feed
+(a full-screen list with Like/Comment/Share), so the fallback counts feed posts there.
+
+**"Detection may be outdated" warning.** Raised when, after 2 minutes in Instagram or YouTube, ReelGuard saw a sign that
+you are on Reels/Shorts (one of the configured `viewIds` on screen, or the `tabLabels` tab selected) but never recognised
+the surface. A full-screen scrolling list alone is not such a sign: the ordinary feeds look the same, so scrolling them
+does not raise the warning. It clears the next time the surface is recognised.
 
 ## Calibration workflow (needs a real device)
 
