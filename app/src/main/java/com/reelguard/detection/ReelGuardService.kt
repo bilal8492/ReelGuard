@@ -11,6 +11,7 @@ import com.reelguard.BuildConfig
 import com.reelguard.data.datastore.Apps
 import com.reelguard.ui.overlay.BlockOverlay
 import com.reelguard.ui.overlay.CounterOverlay
+import com.reelguard.util.PlaybackPauser
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +35,7 @@ class ReelGuardService : AccessibilityService() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private lateinit var overlay: BlockOverlay
     private lateinit var counter: CounterOverlay
+    private lateinit var pauser: PlaybackPauser
 
     private var scanScheduled = false
     private var scrollSeen = false
@@ -49,6 +51,7 @@ class ReelGuardService : AccessibilityService() {
         super.onServiceConnected()
         overlay = BlockOverlay(this)
         counter = CounterOverlay(this)
+        pauser = PlaybackPauser(this)
         scope.launch {
             engine.counterModel.collect { model -> if (model == null) counter.hide() else counter.show(model) }
         }
@@ -57,7 +60,10 @@ class ReelGuardService : AccessibilityService() {
             engine.overlayModel.collect { model ->
                 if (model == null) {
                     overlay.hide()
+                    pauser.release()
                 } else {
+                    // The Short/Reel keeps playing under the block screen otherwise: stop it, and keep it stopped while shown.
+                    pauser.pause()
                     overlay.show(
                         model,
                         onHome = {
@@ -174,6 +180,7 @@ class ReelGuardService : AccessibilityService() {
         handler.removeCallbacks(scanRunnable)
         if (::overlay.isInitialized) overlay.hide()
         if (::counter.isInitialized) counter.hide()
+        if (::pauser.isInitialized) pauser.release()
         scope.cancel()
         engine.onServiceStopped()
     }

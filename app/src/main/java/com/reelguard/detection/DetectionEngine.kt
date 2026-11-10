@@ -38,6 +38,9 @@ import javax.inject.Singleton
 
 data class CounterModel(val appLabel: String, val appCount: Int, val total: Int, val limit: Int, val status: LimitStatus)
 
+/** One monitored app's progress on the block screen: [count] watched out of its [cap]. */
+data class OverlayApp(val pkg: String, val label: String, val count: Int, val cap: Int)
+
 data class OverlayModel(
     val pkg: String,
     val appLabel: String,
@@ -45,6 +48,7 @@ data class OverlayModel(
     val limit: Int,
     val snoozeAvailable: Boolean,
     val resetAt: Long,
+    val apps: List<OverlayApp>,
 )
 
 data class AppDebug(
@@ -137,6 +141,10 @@ class DetectionEngine
                 val limit = if (ls.total >= ls.limit) ls.limit else s.perAppLimits[pkg] ?: ls.limit
                 val day = DayKey.of(System.currentTimeMillis(), s.resetMinutes)
                 val nowMs = System.currentTimeMillis()
+                val apps =
+                    Apps.all.filter { it in s.monitoredApps }.map {
+                        OverlayApp(it, Apps.shortLabel(it), ls.counts[it] ?: 0, s.perAppLimits[it] ?: ls.limit)
+                    }
                 OverlayModel(
                     pkg,
                     Apps.label(pkg),
@@ -144,6 +152,7 @@ class DetectionEngine
                     limit,
                     s.snoozeEnabled && s.snoozeUsedDay != day,
                     DayKey.nextReset(nowMs, s.resetMinutes),
+                    apps,
                 )
             }.distinctUntilChanged().stateIn(scope, SharingStarted.Eagerly, null)
 
