@@ -23,10 +23,8 @@ internal object Keys {
     val combinedLimit = intPreferencesKey("combined_limit")
     val perAppLimits = stringPreferencesKey("per_app_limits")
     val resetMinutes = intPreferencesKey("reset_minutes")
-    val frictionMode = stringPreferencesKey("friction_mode")
     val warnAt = intPreferencesKey("warn_at")
     val monitoredApps = stringSetPreferencesKey("monitored_apps")
-    val countAds = booleanPreferencesKey("count_ads")
     val structuralFallback = booleanPreferencesKey("structural_fallback")
     val avgDuration = intPreferencesKey("avg_duration_seconds")
     val onboardingDone = booleanPreferencesKey("onboarding_done")
@@ -39,6 +37,9 @@ internal object Keys {
     val notifyWarn = booleanPreferencesKey("notify_warn")
     val notifyServiceStop = booleanPreferencesKey("notify_service_stop")
     val showCounter = booleanPreferencesKey("show_counter")
+    val widgetPromptDismissed = booleanPreferencesKey("widget_prompt_dismissed")
+    val shareUsage = booleanPreferencesKey("share_usage")
+    val usageNoticeSeen = booleanPreferencesKey("usage_notice_seen")
 }
 
 @Singleton
@@ -61,8 +62,6 @@ class SettingsRepository
 
         suspend fun setResetMinutes(minutes: Int) = edit { it[Keys.resetMinutes] = minutes.coerceIn(0, 1439) }
 
-        suspend fun setFrictionMode(mode: FrictionMode) = edit { it[Keys.frictionMode] = mode.name }
-
         suspend fun setWarnAt(percent: Int) = edit { it[Keys.warnAt] = percent.coerceIn(0, 100) }
 
         suspend fun setMonitored(
@@ -72,8 +71,6 @@ class SettingsRepository
             val cur = it[Keys.monitoredApps] ?: Apps.all.toSet()
             it[Keys.monitoredApps] = if (enabled) cur + pkg else cur - pkg
         }
-
-        suspend fun setCountAds(v: Boolean) = edit { it[Keys.countAds] = v }
 
         suspend fun setStructuralFallback(v: Boolean) = edit { it[Keys.structuralFallback] = v }
 
@@ -90,6 +87,12 @@ class SettingsRepository
         suspend fun setNotifyServiceStop(v: Boolean) = edit { it[Keys.notifyServiceStop] = v }
 
         suspend fun setShowCounter(v: Boolean) = edit { it[Keys.showCounter] = v }
+
+        suspend fun setWidgetPromptDismissed(v: Boolean) = edit { it[Keys.widgetPromptDismissed] = v }
+
+        suspend fun setShareUsage(v: Boolean) = edit { it[Keys.shareUsage] = v }
+
+        suspend fun setUsageNoticeSeen(v: Boolean) = edit { it[Keys.usageNoticeSeen] = v }
 
         /**
          * Sets the combined limit. Lowering is always allowed; raising is allowed at most once per [dayKey].
@@ -166,10 +169,8 @@ private fun Preferences.toSettings(): Settings {
         combinedLimit = this[Keys.combinedLimit] ?: d.combinedLimit,
         perAppLimits = SettingsRepository.decodeLimits(this[Keys.perAppLimits]),
         resetMinutes = this[Keys.resetMinutes] ?: d.resetMinutes,
-        frictionMode = enumOr(this[Keys.frictionMode], d.frictionMode),
         warnAt = this[Keys.warnAt] ?: d.warnAt,
         monitoredApps = this[Keys.monitoredApps] ?: d.monitoredApps,
-        countAds = this[Keys.countAds] ?: d.countAds,
         structuralFallbackEnabled = this[Keys.structuralFallback] ?: d.structuralFallbackEnabled,
         avgDurationSeconds = this[Keys.avgDuration] ?: d.avgDurationSeconds,
         onboardingDone = this[Keys.onboardingDone] ?: d.onboardingDone,
@@ -182,6 +183,9 @@ private fun Preferences.toSettings(): Settings {
         notifyWarn = this[Keys.notifyWarn] ?: d.notifyWarn,
         notifyServiceStop = this[Keys.notifyServiceStop] ?: d.notifyServiceStop,
         showCounter = this[Keys.showCounter] ?: d.showCounter,
+        widgetPromptDismissed = this[Keys.widgetPromptDismissed] ?: d.widgetPromptDismissed,
+        shareUsage = this[Keys.shareUsage] ?: d.shareUsage,
+        usageNoticeSeen = this[Keys.usageNoticeSeen] ?: d.usageNoticeSeen,
     )
 }
 

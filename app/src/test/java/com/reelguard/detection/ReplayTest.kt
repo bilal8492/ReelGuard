@@ -12,12 +12,9 @@ import java.io.File
 class ReplayTest {
     private val dir = File("src/test/resources/recordings")
 
-    private fun replay(
-        signals: List<UiSignal>,
-        countAds: Boolean = false,
-    ): List<CountEvent> {
+    private fun replay(signals: List<UiSignal>): List<CountEvent> {
         val counter =
-            ReelCounter(mapOf("com.google.android.youtube" to CounterParams(), "com.instagram.android" to CounterParams()), countAds)
+            ReelCounter(mapOf("com.google.android.youtube" to CounterParams(), "com.instagram.android" to CounterParams()))
         return signals.flatMap { counter.process(it) }
     }
 

@@ -8,14 +8,16 @@
     <!-- Notifications -->
     <string name="channel_health">Service health</string>
     <string name="channel_warn">Limit warnings</string>
+    <string name="channel_warn_desc">Loud alert with sound and vibration when you are close to your daily limit</string>
     <string name="notif_stopped_title">ReelGuard stopped working</string>
     <string name="notif_stopped_text">The accessibility service was turned off. Tap to turn it back on.</string>
-    <string name="notif_warn_title">Approaching your daily limit</string>
-    <string name="notif_warn_text">%1$d of %2$d Reels/Shorts watched today.</string>
+    <string name="notif_warn_title">Slow down: almost at your daily limit</string>
+    <string name="notif_warn_text">%1$d of %2$d Reels/Shorts watched today. Only %3$d left before ReelGuard blocks them.</string>
 
     <!-- Overlay -->
     <string name="overlay_title">Daily limit reached</string>
     <string name="overlay_watched">%1$d watched today (%2$s)</string>
+    <string name="overlay_resets">Resets at %1$s · in %2$s</string>
     <string name="overlay_home">Go to Home screen</string>
     <string name="overlay_snooze">Snooze 5 minutes</string>
 
@@ -23,6 +25,8 @@
     <string name="widget_ring_desc">%1$d of %2$d Reels and Shorts watched today</string>
     <string name="widget_limit_reached">Limit reached</string>
     <string name="widget_left">%1$d left</string>
+    <string name="widget_close">Close · %1$d left</string>
+    <string name="widget_resets">Resets %1$s</string>
     <string name="widget_description">Today\'s Reels and Shorts count</string>
 
     <!-- Common -->
@@ -62,13 +66,10 @@
     <string name="hist_streak_caption">Day streak within limit</string>
     <string name="hist_best_caption">Best day · %1$s</string>
     <string name="hist_worst_caption">Worst day · %1$s</string>
-    <string name="friction_seg_none">No check</string>
-    <string name="friction_seg_wait">Wait 30 s</string>
-    <string name="friction_seg_phrase">Type phrase</string>
     <string name="ob_pt_detects">Detects whether Reels or Shorts is on screen</string>
     <string name="ob_pt_counts">Counts the swipes</string>
     <string name="ob_pt_no_content">Never reads or stores videos, captions or messages</string>
-    <string name="ob_pt_no_upload">Nothing leaves your device</string>
+    <string name="ob_pt_no_upload">What you watch and your counts never leave your device</string>
     <string name="health_title">Health check</string>
     <string name="health_subtitle">Make sure counting keeps running</string>
     <string name="health_all_good">Everything is running</string>
@@ -112,18 +113,14 @@
     <string name="set_warn_at">Warn me at %1$d%% of my daily limit</string>
     <string name="set_warn_hint">Slide to 0 to turn the warning off.</string>
     <string name="set_reset">New day starts at</string>
-    <string name="set_reset_time">Your count goes back to 0 at %1$02d:%2$02d</string>
+    <string name="set_reset_time">Your count goes back to 0 at %1$s</string>
     <string name="set_monitored">What to count</string>
     <string name="set_monitored_hint">Turn off to stop counting and blocking this app</string>
-    <string name="set_count_ads">Count ads</string>
-    <string name="set_count_ads_hint">Ads you swipe past also count toward your limit</string>
     <string name="set_blocking">Blocking</string>
     <string name="set_blocking_enabled">Block when I reach my limit</string>
     <string name="set_blocking_hint">If off, ReelGuard only counts and warns you</string>
     <string name="set_snooze">Allow a 5-minute snooze</string>
     <string name="set_snooze_hint">Once per day, from the block screen</string>
-    <string name="set_friction">Before loosening a limit</string>
-    <string name="set_friction_hint">Makes you pause before you raise a limit, turn off blocking or stop counting an app</string>
     <string name="set_notifications">Notifications</string>
     <string name="set_notify_warn">Early warning</string>
     <string name="set_notify_warn_hint">Notify me when I reach the warning level above</string>
@@ -136,6 +133,17 @@
     <string name="set_display">Display</string>
     <string name="set_show_counter">Show counter while watching</string>
     <string name="set_show_counter_hint">A small counter on top of Reels and Shorts</string>
+    <string name="set_privacy">Privacy</string>
+    <string name="set_usage_stats">Share anonymous usage statistics</string>
+    <string name="set_usage_stats_hint">App opens and your country, never what you watch or your counts. Helps show how many people use ReelGuard.</string>
+    <string name="usage_notice_title">Anonymous usage statistics are on</string>
+    <string name="usage_notice_body">To see how many people use ReelGuard, it shares anonymous numbers such as app opens and your country. It never includes what you watch, your counts or your settings. You can switch this off any time in Settings.</string>
+    <string name="usage_notice_ok">Got it</string>
+    <string name="usage_notice_off">Turn off</string>
+    <string name="widget_prompt_title">Add the ReelGuard widget</string>
+    <string name="widget_prompt_body">See today\'s count and what is left from your home screen, without opening the app.</string>
+    <string name="widget_prompt_add">Add widget</string>
+    <string name="widget_prompt_later">Not now</string>
     <string name="set_add_widget">Add widget to home screen</string>
     <string name="set_widget_unsupported">Your launcher cannot add widgets this way. Long-press the home screen, open Widgets and add ReelGuard.</string>
     <string name="counter_text">%1$s %2$d · Total %3$d/%4$d</string>
@@ -149,7 +157,7 @@
     <string name="ob_welcome_title">Welcome to ReelGuard</string>
     <string name="ob_welcome_body">ReelGuard counts how many Instagram Reels and YouTube Shorts you watch each day, lets you set a limit, and blocks Reels/Shorts when you reach it. Regular videos, your feed, stories and messages are never blocked.</string>
     <string name="ob_disclosure_title">What ReelGuard accesses</string>
-    <string name="ob_disclosure_body">ReelGuard uses Android\'s Accessibility Service only to detect whether Reels or Shorts is on screen and to count swipes.\n\nIt does not read, collect or store content such as videos, captions, usernames or messages. Nothing is sent anywhere: all data stays on this device, and there is no account or analytics.</string>
+    <string name="ob_disclosure_body">ReelGuard uses Android\'s Accessibility Service only to detect whether Reels or Shorts is on screen and to count swipes.\n\nIt does not read, collect or store content such as videos, captions, usernames or messages. What you watch, your counts and your settings never leave this device, and there is no account.\n\nTo see how many people use ReelGuard, it shares anonymous usage numbers such as app opens and your country. You can switch this off any time in Settings.</string>
     <string name="ob_agree">I understand, continue</string>
     <string name="ob_decline">No thanks</string>
     <string name="ob_declined">ReelGuard cannot work without this permission. You can change your mind at any time.</string>

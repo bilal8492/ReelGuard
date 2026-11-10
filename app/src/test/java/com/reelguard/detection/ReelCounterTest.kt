@@ -136,14 +136,10 @@ class ReelCounterTest {
     }
 
     @Test
-    fun `ads are skipped unless countAds`() {
+    fun `ads count like any other item`() {
         on(0, 1)
         on(2000, 2, ad = true)
         on(3000, 2, ad = true)
-        counted shouldBe 1
-        counter.countAds = true
-        on(5000, 3, ad = true)
-        on(6000, 3, ad = true)
         counted shouldBe 2
     }
 

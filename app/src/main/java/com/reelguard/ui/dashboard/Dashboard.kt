@@ -1,6 +1,7 @@
 package com.reelguard.ui.dashboard
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -25,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -52,6 +55,8 @@ import com.reelguard.ui.common.StatusGlyph
 import com.reelguard.ui.common.formatMinutes
 import com.reelguard.ui.theme.color
 import com.reelguard.ui.theme.extra
+import com.reelguard.widget.hasWidget
+import com.reelguard.widget.requestPinWidget
 import com.reelguard.work.isServiceEnabled
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -60,8 +65,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import javax.inject.Inject
 
 data class DashboardState(
@@ -69,6 +77,8 @@ data class DashboardState(
     val settings: Settings,
     val outdatedApps: Set<String>,
     val serviceEnabled: Boolean,
+    val showWidgetPrompt: Boolean,
+    val showUsageNotice: Boolean = false,
 )
 
 @HiltViewModel
@@ -76,19 +86,36 @@ class DashboardViewModel
     @Inject
     constructor(
         engine: DetectionEngine,
-        settings: SettingsRepository,
+        private val settings: SettingsRepository,
         health: HealthRepository,
         @ApplicationContext private val context: Context,
     ) : ViewModel() {
         private val enabled = MutableStateFlow(isServiceEnabled(context))
 
+        private val widgetPlaced = MutableStateFlow(hasWidget(context))
+
         fun refresh() {
             enabled.value = isServiceEnabled(context)
+            widgetPlaced.value = hasWidget(context)
+        }
+
+        fun dismissWidgetPrompt() {
+            viewModelScope.launch { settings.setWidgetPromptDismissed(true) }
+        }
+
+        fun dismissUsageNotice(turnOff: Boolean) {
+            viewModelScope.launch {
+                if (turnOff) settings.setShareUsage(false)
+                settings.setUsageNoticeSeen(true)
+            }
         }
 
         val state: StateFlow<DashboardState?> =
-            combine(engine.limitState, settings.settings, health.state, enabled) { ls, s, h, en ->
-                ls?.let { DashboardState(it, s, h.outdatedApps, en) }
+            combine(engine.limitState, settings.settings, health.state, enabled, widgetPlaced) { ls, s, h, en, placed ->
+                // One card at a time: the usage-statistics notice first, then the widget prompt.
+                val notice = s.onboardingDone && !s.usageNoticeSeen
+                val widgetPrompt = s.onboardingDone && !placed && !s.widgetPromptDismissed && !notice
+                ls?.let { DashboardState(it, s, h.outdatedApps, en, widgetPrompt, notice) }
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
     }
 
@@ -99,14 +126,24 @@ fun DashboardScreen(
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { vm.refresh() }
-    state?.let { DashboardContent(it, onOpenHealth) }
+    state?.let {
+        DashboardContent(
+            it,
+            onOpenHealth,
+            onDismissWidgetPrompt = vm::dismissWidgetPrompt,
+            onDismissUsageNotice = vm::dismissUsageNotice,
+        )
+    }
 }
 
 @Composable
 fun DashboardContent(
     state: DashboardState,
     onOpenHealth: () -> Unit,
+    onDismissWidgetPrompt: () -> Unit = {},
+    onDismissUsageNotice: (Boolean) -> Unit = {},
 ) {
+    val context = LocalContext.current
     val ls = state.limit
     val progress = if (ls.limit > 0) ls.total.toFloat() / ls.limit else 0f
     val statusLabel =
@@ -115,7 +152,10 @@ fun DashboardContent(
             LimitStatus.WARN -> stringResource(R.string.status_warn)
             LimitStatus.REACHED -> stringResource(R.string.dash_limit_reached)
         }
-    val date = remember(Unit) { LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d MMMM")) }
+    val date =
+        remember(ls.counts, state.settings.resetMinutes) {
+            LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d MMMM"))
+        }
     Column(
         Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(bottom = 112.dp).fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -123,6 +163,19 @@ fun DashboardContent(
         ScreenTitle(stringResource(R.string.nav_today), date)
         if (!state.serviceEnabled) Banner(stringResource(R.string.banner_service_off), onOpenHealth)
         state.outdatedApps.forEach { Banner(stringResource(R.string.banner_outdated, Apps.label(it)), onOpenHealth) }
+
+        if (state.showUsageNotice) {
+            UsageNotice(onOk = { onDismissUsageNotice(false) }, onTurnOff = { onDismissUsageNotice(true) })
+        }
+
+        if (state.showWidgetPrompt) {
+            WidgetPrompt(
+                onAdd = {
+                    if (!requestPinWidget(context)) Toast.makeText(context, R.string.set_widget_unsupported, Toast.LENGTH_LONG).show()
+                },
+                onDismiss = onDismissWidgetPrompt,
+            )
+        }
 
         AppCard(Modifier.fillMaxWidth(), padding = 24.dp) {
             Column(
@@ -152,7 +205,8 @@ fun DashboardContent(
                     Metric(stringResource(R.string.dash_est_short), formatMinutes(ls.total * state.settings.avgDurationSeconds))
                     Metric(
                         stringResource(R.string.dash_resets),
-                        "%02d:%02d".format(state.settings.resetMinutes / 60, state.settings.resetMinutes % 60),
+                        LocalTime.of(state.settings.resetMinutes / 60, state.settings.resetMinutes % 60)
+                            .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)),
                     )
                 }
             }
@@ -211,6 +265,63 @@ private fun AppTile(
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+    }
+}
+
+@Composable
+private fun WidgetPrompt(
+    onAdd: () -> Unit,
+    onDismiss: () -> Unit,
+) = InfoCard(
+    tag = "widget_prompt",
+    title = stringResource(R.string.widget_prompt_title),
+    body = stringResource(R.string.widget_prompt_body),
+    primaryLabel = stringResource(R.string.widget_prompt_add),
+    secondaryLabel = stringResource(R.string.widget_prompt_later),
+    onPrimary = onAdd,
+    onSecondary = onDismiss,
+)
+
+/** One-time heads-up that anonymous usage statistics are on, with a way to switch them off right away. */
+@Composable
+private fun UsageNotice(
+    onOk: () -> Unit,
+    onTurnOff: () -> Unit,
+) = InfoCard(
+    tag = "usage_notice",
+    title = stringResource(R.string.usage_notice_title),
+    body = stringResource(R.string.usage_notice_body),
+    primaryLabel = stringResource(R.string.usage_notice_ok),
+    secondaryLabel = stringResource(R.string.usage_notice_off),
+    onPrimary = onOk,
+    onSecondary = onTurnOff,
+)
+
+/** A dismissible card at the top of the Today screen: a title, a sentence, a main button and a quiet second one. */
+@Composable
+private fun InfoCard(
+    tag: String,
+    title: String,
+    body: String,
+    primaryLabel: String,
+    secondaryLabel: String,
+    onPrimary: () -> Unit,
+    onSecondary: () -> Unit,
+) {
+    val ink = MaterialTheme.colorScheme.onPrimaryContainer
+    Surface(
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.primaryContainer,
+        modifier = Modifier.fillMaxWidth().testTag(tag),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(title, style = MaterialTheme.typography.titleMedium, color = ink)
+            Text(body, style = MaterialTheme.typography.bodyMedium, color = ink)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Button(onClick = onPrimary, modifier = Modifier.heightMinimum()) { Text(primaryLabel) }
+                TextButton(onClick = onSecondary, modifier = Modifier.heightMinimum()) { Text(secondaryLabel, color = ink) }
+            }
         }
     }
 }

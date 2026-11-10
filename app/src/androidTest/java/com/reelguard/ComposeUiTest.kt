@@ -36,7 +36,7 @@ class ComposeUiTest {
         limit: Int = 50,
     ): DashboardState {
         val s = Settings(combinedLimit = limit)
-        return DashboardState(EvaluateLimit.evaluate(counts.toMap(), s), s, emptySet(), serviceEnabled = true)
+        return DashboardState(EvaluateLimit.evaluate(counts.toMap(), s), s, emptySet(), serviceEnabled = true, showWidgetPrompt = false)
     }
 
     @Test

@@ -34,7 +34,6 @@ data class Settings(
     /** Percent of the limit at which to warn; 0 turns the warning off. */
     val warnAt: Int = 80,
     val monitoredApps: Set<String> = Apps.all.toSet(),
-    val countAds: Boolean = false,
     val structuralFallbackEnabled: Boolean = false,
     val avgDurationSeconds: Int = 30,
     val onboardingDone: Boolean = false,
@@ -48,6 +47,12 @@ data class Settings(
     val notifyServiceStop: Boolean = true,
     /** Show a small live counter over Reels/Shorts while watching. */
     val showCounter: Boolean = true,
+    /** The user closed the "add the widget" card on the Today screen. */
+    val widgetPromptDismissed: Boolean = false,
+    /** Share anonymous usage statistics (Google Analytics for Firebase). On by default; switched off in Settings. */
+    val shareUsage: Boolean = true,
+    /** The user has seen the one-time "usage statistics are on" card on the Today screen. */
+    val usageNoticeSeen: Boolean = false,
 ) {
     fun snoozeActive(now: Long) = snoozeUntil > now
 

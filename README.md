@@ -5,7 +5,8 @@
 
 An Android app that counts the Instagram Reels and YouTube Shorts you watch each day, lets you set a daily limit, and
 shows a "limit reached" screen when you hit it. Regular videos, feeds, stories and messages are never blocked.
-Everything stays on your device: no account, no analytics, no ads.
+What you watch and your counts stay on your device: no account, no ads. Anonymous usage statistics (app opens and your
+country) are on by default and can be switched off in Settings.
 
 **Website:** https://bilalansari.in/reelguard/ · **Download:** [latest release](https://github.com/bilal8492/reelguard/releases/latest)
 
@@ -29,7 +30,9 @@ switch is greyed out: App info > ReelGuard > menu > *Allow restricted settings*,
 
 ## Privacy
 
-See [PRIVACY.md](PRIVACY.md). The released APK contains no Firebase configuration and makes no network requests.
+See [PRIVACY.md](PRIVACY.md). What you watch, your counts and your settings never leave your device. Released APKs
+share anonymous usage statistics (app opens and country; on by default, off in Settings > Privacy) and check Firebase
+Remote Config for detection updates.
 
 ## Build from source
 
@@ -40,12 +43,14 @@ Requires JDK 17 and Android SDK 35.
 ./gradlew test               # unit tests
 ```
 
-Optional: put your own `app/google-services.json` in place to enable Firebase Remote Config for selector updates. It is
-git-ignored. Release signing reads `keystore.properties` (also git-ignored).
+Optional: put your own `app/google-services.json` in place to enable Firebase (Remote Config for selector updates and
+anonymous usage statistics). It is git-ignored; without it the app builds and runs offline and makes no network
+requests. Release signing reads `keystore.properties` (also git-ignored).
 
 ## Releasing (maintainers)
 
-Add repository secrets `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`, then push a tag:
+Add repository secrets `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD` (and, to ship Firebase in the
+release, `GOOGLE_SERVICES_JSON_BASE64`: the base64 of your `google-services.json`), then push a tag:
 
 ```bash
 git tag v0.1.0 && git push origin v0.1.0

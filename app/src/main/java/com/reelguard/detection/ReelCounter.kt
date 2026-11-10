@@ -5,11 +5,10 @@ package com.reelguard.detection
  *
  * Rules (see spec 5.1): first item counted once on entry; later items counted after settling >= settleMs;
  * items among the last [CounterParams.recentSize] signatures are never recounted; re-entering the same item within
- * reenterWindowMs is not recounted; ads count only when [countAds].
+ * reenterWindowMs is not recounted; ads count like any other item.
  */
 class ReelCounter(
     private var params: Map<String, CounterParams>,
-    var countAds: Boolean = false,
     var structuralFallback: Boolean = false,
 ) {
     private class State {
@@ -18,7 +17,6 @@ class ReelCounter(
         var current: Long? = null
         var pending: Long? = null
         var pendingSince = 0L
-        var pendingAd = false
         val recent = ArrayDeque<Long>()
         var exitTime = Long.MIN_VALUE
         var foregroundSince = -1L
@@ -90,7 +88,7 @@ class ReelCounter(
             st.awaitingFirst = false
             val resumed = f.timeMs - st.exitTime <= p.reenterWindowMs && sig in st.recent
             st.current = sig
-            register(st, sig, f.isAd, f.pkg, f.timeMs, p, out, countIt = !resumed)
+            register(st, sig, f.pkg, f.timeMs, p, out, countIt = !resumed)
             return
         }
         when {
@@ -98,7 +96,6 @@ class ReelCounter(
             sig != st.pending -> {
                 st.pending = sig
                 st.pendingSince = f.timeMs
-                st.pendingAd = f.isAd
             }
             else -> settleIfDue(st, f.pkg, p, f.timeMs, out)
         }
@@ -115,13 +112,12 @@ class ReelCounter(
         if (!st.active || now - st.pendingSince < p.settleMs) return
         st.pending = null
         st.current = pending
-        register(st, pending, st.pendingAd, pkg, now, p, out, countIt = pending !in st.recent)
+        register(st, pending, pkg, now, p, out, countIt = pending !in st.recent)
     }
 
     private fun register(
         st: State,
         sig: Long,
-        isAd: Boolean,
         pkg: String,
         now: Long,
         p: CounterParams,
@@ -132,7 +128,7 @@ class ReelCounter(
             st.recent.addLast(sig)
             while (st.recent.size > p.recentSize) st.recent.removeFirst()
         }
-        if (countIt && (!isAd || countAds)) out += CountEvent.Counted(now, pkg)
+        if (countIt) out += CountEvent.Counted(now, pkg)
     }
 
     private fun leave(
