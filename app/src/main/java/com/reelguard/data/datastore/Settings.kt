@@ -51,8 +51,6 @@ data class Settings(
     val widgetPromptDismissed: Boolean = false,
     /** Share anonymous usage statistics (Google Analytics for Firebase). On by default; switched off in Settings. */
     val shareUsage: Boolean = true,
-    /** The user has seen the one-time "usage statistics are on" card on the Today screen. */
-    val usageNoticeSeen: Boolean = false,
 ) {
     fun snoozeActive(now: Long) = snoozeUntil > now
 

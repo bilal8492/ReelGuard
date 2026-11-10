@@ -78,7 +78,6 @@ data class DashboardState(
     val outdatedApps: Set<String>,
     val serviceEnabled: Boolean,
     val showWidgetPrompt: Boolean,
-    val showUsageNotice: Boolean = false,
 )
 
 @HiltViewModel
@@ -103,19 +102,9 @@ class DashboardViewModel
             viewModelScope.launch { settings.setWidgetPromptDismissed(true) }
         }
 
-        fun dismissUsageNotice(turnOff: Boolean) {
-            viewModelScope.launch {
-                if (turnOff) settings.setShareUsage(false)
-                settings.setUsageNoticeSeen(true)
-            }
-        }
-
         val state: StateFlow<DashboardState?> =
             combine(engine.limitState, settings.settings, health.state, enabled, widgetPlaced) { ls, s, h, en, placed ->
-                // One card at a time: the usage-statistics notice first, then the widget prompt.
-                val notice = s.onboardingDone && !s.usageNoticeSeen
-                val widgetPrompt = s.onboardingDone && !placed && !s.widgetPromptDismissed && !notice
-                ls?.let { DashboardState(it, s, h.outdatedApps, en, widgetPrompt, notice) }
+                ls?.let { DashboardState(it, s, h.outdatedApps, en, s.onboardingDone && !placed && !s.widgetPromptDismissed) }
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
     }
 
@@ -126,14 +115,7 @@ fun DashboardScreen(
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { vm.refresh() }
-    state?.let {
-        DashboardContent(
-            it,
-            onOpenHealth,
-            onDismissWidgetPrompt = vm::dismissWidgetPrompt,
-            onDismissUsageNotice = vm::dismissUsageNotice,
-        )
-    }
+    state?.let { DashboardContent(it, onOpenHealth, onDismissWidgetPrompt = vm::dismissWidgetPrompt) }
 }
 
 @Composable
@@ -141,7 +123,6 @@ fun DashboardContent(
     state: DashboardState,
     onOpenHealth: () -> Unit,
     onDismissWidgetPrompt: () -> Unit = {},
-    onDismissUsageNotice: (Boolean) -> Unit = {},
 ) {
     val context = LocalContext.current
     val ls = state.limit
@@ -163,10 +144,6 @@ fun DashboardContent(
         ScreenTitle(stringResource(R.string.nav_today), date)
         if (!state.serviceEnabled) Banner(stringResource(R.string.banner_service_off), onOpenHealth)
         state.outdatedApps.forEach { Banner(stringResource(R.string.banner_outdated, Apps.label(it)), onOpenHealth) }
-
-        if (state.showUsageNotice) {
-            UsageNotice(onOk = { onDismissUsageNotice(false) }, onTurnOff = { onDismissUsageNotice(true) })
-        }
 
         if (state.showWidgetPrompt) {
             WidgetPrompt(
@@ -281,21 +258,6 @@ private fun WidgetPrompt(
     secondaryLabel = stringResource(R.string.widget_prompt_later),
     onPrimary = onAdd,
     onSecondary = onDismiss,
-)
-
-/** One-time heads-up that anonymous usage statistics are on, with a way to switch them off right away. */
-@Composable
-private fun UsageNotice(
-    onOk: () -> Unit,
-    onTurnOff: () -> Unit,
-) = InfoCard(
-    tag = "usage_notice",
-    title = stringResource(R.string.usage_notice_title),
-    body = stringResource(R.string.usage_notice_body),
-    primaryLabel = stringResource(R.string.usage_notice_ok),
-    secondaryLabel = stringResource(R.string.usage_notice_off),
-    onPrimary = onOk,
-    onSecondary = onTurnOff,
 )
 
 /** A dismissible card at the top of the Today screen: a title, a sentence, a main button and a quiet second one. */

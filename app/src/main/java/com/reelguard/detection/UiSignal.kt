@@ -26,8 +26,16 @@ data class Frame(
     /** Hash of the visible item's identity (creator + caption/title). Null when it could not be read. */
     val signature: Long? = null,
     val isAd: Boolean = false,
-    /** A vertical, full-screen pager is being scrolled right now (used only by the "detection outdated" heuristic). */
+    /**
+     * A vertical, full-screen list is being scrolled right now. Not used by the "detection outdated" heuristic any more
+     * (an ordinary feed looks the same); kept so older recordings still load.
+     */
     val pagerScrolling: Boolean = false,
+    /**
+     * The app's Reels/Shorts bottom tab is selected. Together with [signalA] this is the evidence the "detection outdated"
+     * heuristic needs that the user really is on the surface.
+     */
+    val tabSelected: Boolean = false,
 ) : UiSignal
 
 /** The monitored app left the foreground. */

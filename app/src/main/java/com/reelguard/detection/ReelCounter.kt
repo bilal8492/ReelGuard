@@ -21,7 +21,7 @@ class ReelCounter(
         var exitTime = Long.MIN_VALUE
         var foregroundSince = -1L
         var activatedSinceForeground = false
-        var pagerScrollSeen = false
+        var surfaceHintSeen = false
         var outdated = false
     }
 
@@ -68,7 +68,10 @@ class ReelCounter(
         val surfaceActive = score >= p.threshold || (structuralFallback && f.signalB)
         if (!surfaceActive) {
             leave(st, f.pkg, f.timeMs, out, keepForeground = true)
-            if (f.pagerScrolling) st.pagerScrollSeen = true
+            // Evidence that the user really is on Reels/Shorts but the surface was not recognised: a configured view id is
+            // on screen, or the Reels/Shorts tab is selected. A full-screen scrolling list alone is not evidence: the
+            // ordinary Instagram and YouTube feeds look exactly the same.
+            if (f.signalA || f.tabSelected) st.surfaceHintSeen = true
             checkOutdated(st, f.pkg, p, f.timeMs, out)
             return
         }
@@ -147,7 +150,7 @@ class ReelCounter(
         if (!keepForeground) {
             st.foregroundSince = -1
             st.activatedSinceForeground = false
-            st.pagerScrollSeen = false
+            st.surfaceHintSeen = false
         }
     }
 
@@ -159,7 +162,7 @@ class ReelCounter(
         out: MutableList<CountEvent>,
     ) {
         if (st.outdated || st.activatedSinceForeground) return
-        if (!st.pagerScrollSeen || st.foregroundSince < 0) return
+        if (!st.surfaceHintSeen || st.foregroundSince < 0) return
         if (now - st.foregroundSince >= p.outdatedAfterMs) {
             st.outdated = true
             out += CountEvent.OutdatedChanged(now, pkg, true)

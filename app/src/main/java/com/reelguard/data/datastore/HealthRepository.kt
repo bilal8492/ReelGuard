@@ -72,6 +72,9 @@ class HealthRepository
             it[outdated] = if (isOutdated) cur + pkg else cur - pkg
         }
 
+        /** Forgets every "detection may be outdated" flag. The detector starts each process with a clean slate. */
+        suspend fun clearOutdated() = store.edit { it.remove(outdated) }
+
         suspend fun setStopNotified(v: Boolean) = store.edit { it[stopNotified] = v }
 
         suspend fun setWarnedDay(day: String) = store.edit { it[warnedDay] = day }
