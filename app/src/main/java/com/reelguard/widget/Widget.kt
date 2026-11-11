@@ -11,6 +11,9 @@ import android.graphics.RectF
 import android.graphics.Shader
 import android.os.SystemClock
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -63,8 +66,6 @@ import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
@@ -91,10 +92,18 @@ class ReelGuardWidget : GlanceAppWidget() {
         id: GlanceId,
     ) {
         val ep = EntryPointAccessors.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
-        val s = ep.settings().current()
-        val now = System.currentTimeMillis()
-        val state = EvaluateLimit.evaluate(ep.counts().countsFor(DayKey.of(now, s.resetMinutes)), s)
-        provideContent { WidgetContent(state, s, DayKey.nextReset(now, s.resetMinutes)) }
+        val counts = ep.counts()
+        val settings = ep.settings()
+        // Seed with the current values so the first frame is correct, then keep following the data. `update()` on a session that
+        // is still alive does NOT call provideGlance again (Glance only re-emits the existing composition), so anything read
+        // once out here would stay frozen for as long as the session lives. Collecting flows inside the composition does not.
+        val initialSettings = settings.current()
+        val initialCounts = counts.countsFor(DayKey.of(System.currentTimeMillis(), initialSettings.resetMinutes))
+        provideContent {
+            val s by remember { settings.settings }.collectAsState(initialSettings)
+            val c by remember { counts.todayCounts() }.collectAsState(initialCounts)
+            WidgetContent(EvaluateLimit.evaluate(c, s), s, DayKey.nextReset(System.currentTimeMillis(), s.resetMinutes))
+        }
     }
 
     companion object {
@@ -407,11 +416,8 @@ class GlanceWidgetRefresher
         private val counts: CountRepository,
         private val settings: SettingsRepository,
     ) : WidgetRefresher {
-        private var lastUpdate = 0L
-        private var pending: Job? = null
-
-        /** Set when a request arrives while an update is already scheduled or running, so that update is repeated. */
-        @Volatile private var dirty = false
+        private val updater =
+            CoalescingUpdater(scope, SystemClock::elapsedRealtime, MIN_INTERVAL_MS) { ReelGuardWidget().updateAll(context) }
 
         private var started = false
 
@@ -430,26 +436,7 @@ class GlanceWidgetRefresher
             scope.launch { counts.todayKey().drop(1).collect { request(force = true) } }
         }
 
-        @Synchronized
-        override fun request(force: Boolean) {
-            if (!force && pending?.isActive == true) {
-                dirty = true
-                return
-            }
-            pending?.cancel()
-            val wait = if (force) 0L else (lastUpdate + MIN_INTERVAL_MS - SystemClock.elapsedRealtime()).coerceAtLeast(0L)
-            pending =
-                scope.launch {
-                    delay(wait)
-                    do {
-                        dirty = false
-                        lastUpdate = SystemClock.elapsedRealtime()
-                        ReelGuardWidget().updateAll(context)
-                        // A count that landed during the update above is shown by one more update after the minimum interval.
-                        if (dirty) delay(MIN_INTERVAL_MS)
-                    } while (dirty)
-                }
-        }
+        override fun request(force: Boolean) = updater.request(force)
 
         companion object {
             const val MIN_INTERVAL_MS = 10_000L
