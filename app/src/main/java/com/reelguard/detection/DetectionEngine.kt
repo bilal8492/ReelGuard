@@ -16,6 +16,7 @@ import com.reelguard.domain.LimitState
 import com.reelguard.domain.LimitStatus
 import com.reelguard.domain.WidgetRefresher
 import com.reelguard.util.Notifier
+import com.reelguard.work.isServiceEnabled
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -106,6 +107,20 @@ class DetectionEngine
         private val counter = ReelCounter(emptyMap())
         private var tickJob: Job? = null
         private var started = false
+
+        private val stopWatcher =
+            ServiceStopWatcher(
+                scope = scope,
+                graceMs = ServiceStopWatcher.GRACE_MS,
+                stillOff = { !isServiceEnabled(context) },
+                onConfirmedStop = {
+                    val s = settingsRepo.current()
+                    if (s.onboardingDone && s.notifyServiceStop && !health.current().stopNotified) {
+                        notifier.postServiceStopped()
+                        health.setStopNotified(true)
+                    }
+                },
+            )
 
         val recorder = SignalRecorder(context)
         val dumper = NodeDumper(context)
@@ -221,24 +236,21 @@ class DetectionEngine
             return (e.actionDescriptions + e.tabLabels + e.titleKeywords).toSet()
         }
 
-        fun onServiceConnected() {
+        fun onServiceConnected(owner: Any) {
+            stopWatcher.connected(owner)
             start()
             scope.launch { health.setConnected(true, System.currentTimeMillis()) }
             notifier.cancelServiceStopped()
             scope.launch { selectors.refreshVersions() }
         }
 
-        fun onServiceStopped() {
+        /** A stop from an instance that a newer one has already replaced is ignored: it must not undo the new connection. */
+        fun onServiceStopped(owner: Any) {
+            if (!stopWatcher.stopped(owner)) return
             scope.launch {
                 health.setConnected(false, System.currentTimeMillis())
                 channel.send(Msg.Signal(AppLeft(SystemClock.elapsedRealtime(), Apps.YOUTUBE)))
                 channel.send(Msg.Signal(AppLeft(SystemClock.elapsedRealtime(), Apps.INSTAGRAM)))
-                val s = settingsRepo.current()
-                val h = health.current()
-                if (s.onboardingDone && s.notifyServiceStop && !h.stopNotified) {
-                    notifier.postServiceStopped()
-                    health.setStopNotified(true)
-                }
             }
         }
 
