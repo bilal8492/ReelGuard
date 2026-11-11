@@ -25,6 +25,10 @@ class ComposeUiTest {
     fun onboardingShowsDisclosureBeforeAskingForAccessibility() {
         rule.setContent { MaterialTheme { OnboardingContent(isServiceEnabled = { false }, onFinish = {}) } }
         rule.onNodeWithTag("next").performClick()
+        rule.onNodeWithTag("limit_value").assertIsDisplayed()
+        rule.onNodeWithTag("limit_more").performClick()
+        rule.onNodeWithText("35").assertIsDisplayed()
+        rule.onNodeWithTag("limit_next").performClick()
         rule.onNodeWithTag("disclosure_title").assertIsDisplayed()
         rule.onNodeWithText("Open accessibility settings").assertDoesNotExist()
         rule.onNodeWithTag("agree").performClick()
