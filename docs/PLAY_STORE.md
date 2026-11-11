@@ -113,7 +113,7 @@ Instagram, Reels, YouTube and Shorts are trademarks of their respective owners.
 | --- | --- | --- |
 | App icon | `icon-512.png` (512×512) | 512×512 PNG, up to 1 MB; Play rounds the corners itself |
 | Feature graphic | `feature-graphic-1024x500.png` | 1024×500 PNG or JPG |
-| Phone screenshots (3) | `screenshots/phone-01-today.png`, `-02-history.png`, `-03-settings.png` (780×1560) | at least 2; each side 320–3840 px, long side at most 2× the short side |
+| Phone screenshots (7) | `screenshots/phone-01-today.png`, `-02-warning.png`, `-03-limit-reached.png` (block screen), `-04-widget.png`, `-05-today-limit.png`, `-06-history.png`, `-07-settings.png` (1170×2340, in this order; Play only promotes apps with at least 4 screenshots of 1080 px or more per side) | 2 to 8; each side 320–3840 px, long side at most 2× the short side |
 
 The icon and feature graphic are rendered from `promo-video/src/PlayAssets.tsx`
 (`cd promo-video && npx remotion still src/index.ts PlayIcon ../docs/play/icon-512.png`; `PlayFeature` for the graphic).
