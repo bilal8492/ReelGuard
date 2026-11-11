@@ -55,7 +55,7 @@ class ReelGuardService : AccessibilityService() {
         scope.launch {
             engine.counterModel.collect { model -> if (model == null) counter.hide() else counter.show(model) }
         }
-        engine.onServiceConnected()
+        engine.onServiceConnected(this)
         scope.launch {
             engine.overlayModel.collect { model ->
                 if (model == null) {
@@ -182,7 +182,7 @@ class ReelGuardService : AccessibilityService() {
         if (::counter.isInitialized) counter.hide()
         if (::pauser.isInitialized) pauser.release()
         scope.cancel()
-        engine.onServiceStopped()
+        engine.onServiceStopped(this)
     }
 
     companion object {
