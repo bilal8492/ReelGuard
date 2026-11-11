@@ -22,7 +22,7 @@ androidxTestExt = "1.2.1"
 ktlintPlugin = "12.1.1"
 detekt = "1.23.7"
 firebaseBom = "33.5.1"
-googleServices = "4.4.2"
+googleServices = "4.5.0"
 playServicesCoroutines = "1.9.0"
 
 [libraries]
