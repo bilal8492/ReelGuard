@@ -41,6 +41,8 @@ internal object Keys {
     val shareUsage = booleanPreferencesKey("share_usage")
 }
 
+private const val MAX_INITIAL_LIMIT = 999
+
 @Singleton
 class SettingsRepository
     @Inject
@@ -58,6 +60,9 @@ class SettingsRepository
         }
 
         suspend fun setOnboardingDone(done: Boolean) = edit { it[Keys.onboardingDone] = done }
+
+        /** The limit picked during setup. Unlike [setCombinedLimit] it is not a "raise", so it does not use up the daily raise. */
+        suspend fun setInitialLimit(limit: Int) = edit { it[Keys.combinedLimit] = limit.coerceIn(1, MAX_INITIAL_LIMIT) }
 
         suspend fun setResetMinutes(minutes: Int) = edit { it[Keys.resetMinutes] = minutes.coerceIn(0, 1439) }
 

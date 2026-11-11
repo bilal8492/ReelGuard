@@ -23,6 +23,10 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -73,8 +77,12 @@ class OnboardingViewModel
     ) : ViewModel() {
         fun serviceEnabled() = isServiceEnabled(context)
 
-        fun finish(onDone: () -> Unit) {
+        fun finish(
+            limit: Int,
+            onDone: () -> Unit,
+        ) {
             viewModelScope.launch {
+                settings.setInitialLimit(limit)
                 settings.setOnboardingDone(true)
                 onDone()
             }
@@ -86,17 +94,23 @@ fun OnboardingScreen(
     onDone: () -> Unit,
     vm: OnboardingViewModel = hiltViewModel(),
 ) {
-    OnboardingContent(isServiceEnabled = vm::serviceEnabled, onFinish = { vm.finish(onDone) })
+    OnboardingContent(isServiceEnabled = vm::serviceEnabled, onFinish = { limit -> vm.finish(limit, onDone) })
 }
 
-private const val LAST = 3
+private const val LAST = 4
+private const val LIMIT_STEP = 5
+private const val LIMIT_MIN = 5
+private const val LIMIT_MAX = 500
+private const val LIMIT_START = 30
+private val LIMIT_PRESETS = listOf(20, 30, 50, 100)
 
 @Composable
 fun OnboardingContent(
     isServiceEnabled: () -> Boolean,
-    onFinish: () -> Unit,
+    onFinish: (limit: Int) -> Unit,
 ) {
     var step by rememberSaveable { mutableIntStateOf(0) }
+    var limit by rememberSaveable { mutableIntStateOf(LIMIT_START) }
     var declined by rememberSaveable { mutableStateOf(false) }
     var enabled by remember { mutableStateOf(isServiceEnabled()) }
     val context = LocalContext.current
@@ -110,11 +124,15 @@ fun OnboardingContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            Hero(step, enabled)
+            Hero(step, enabled, limit)
             when (step) {
                 0 -> Copy(stringResource(R.string.ob_welcome_title), stringResource(R.string.ob_welcome_body))
-                1 -> DisclosureCopy(declined)
-                2 -> {
+                1 -> {
+                    Copy(stringResource(R.string.ob_limit_title), stringResource(R.string.ob_limit_body))
+                    LimitPicker(limit) { limit = it }
+                }
+                2 -> DisclosureCopy(declined)
+                3 -> {
                     Copy(stringResource(R.string.ob_enable_title), stringResource(R.string.ob_enable_body))
                     ServiceState(enabled)
                     Text(
@@ -124,17 +142,18 @@ fun OnboardingContent(
                         textAlign = TextAlign.Center,
                     )
                 }
-                else -> Copy(stringResource(R.string.ob_done_title), stringResource(R.string.ob_done_body))
+                else -> Copy(stringResource(R.string.ob_done_title), stringResource(R.string.ob_done_body, limit))
             }
         }
         Column(Modifier.padding(top = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             when (step) {
                 0 -> PrimaryButton(stringResource(R.string.ob_next), { step = 1 }, Modifier.testTag("next"))
-                1 -> {
-                    PrimaryButton(stringResource(R.string.ob_agree), { step = 2 }, Modifier.testTag("agree"))
+                1 -> PrimaryButton(stringResource(R.string.ob_next), { step = 2 }, Modifier.testTag("limit_next"))
+                2 -> {
+                    PrimaryButton(stringResource(R.string.ob_agree), { step = 3 }, Modifier.testTag("agree"))
                     SecondaryButton(stringResource(R.string.ob_decline), { declined = true })
                 }
-                2 -> {
+                3 -> {
                     PrimaryButton(
                         stringResource(R.string.ob_open_settings),
                         { context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) },
@@ -152,7 +171,46 @@ fun OnboardingContent(
                     )
                     SecondaryButton(stringResource(R.string.ob_skip), { step = LAST })
                 }
-                else -> PrimaryButton(stringResource(R.string.ob_finish), onFinish, Modifier.testTag("next"))
+                else -> PrimaryButton(stringResource(R.string.ob_finish), { onFinish(limit) }, Modifier.testTag("next"))
+            }
+        }
+    }
+}
+
+private const val LIMIT_RING_FULL = 100f
+
+@Composable
+private fun LimitPicker(
+    limit: Int,
+    onChange: (Int) -> Unit,
+) {
+    val primary = MaterialTheme.colorScheme.primary
+    val tint = primary.copy(alpha = 0.16f)
+    val buttonColors = ButtonDefaults.filledTonalButtonColors(containerColor = tint, contentColor = primary)
+    val chipColors = FilterChipDefaults.filterChipColors(selectedContainerColor = tint, selectedLabelColor = primary)
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            FilledTonalButton(
+                onClick = { onChange((limit - LIMIT_STEP).coerceAtLeast(LIMIT_MIN)) },
+                enabled = limit > LIMIT_MIN,
+                modifier = Modifier.testTag("limit_less"),
+                colors = buttonColors,
+            ) { Text(stringResource(R.string.ob_limit_less, LIMIT_STEP)) }
+            FilledTonalButton(
+                onClick = { onChange((limit + LIMIT_STEP).coerceAtMost(LIMIT_MAX)) },
+                enabled = limit < LIMIT_MAX,
+                modifier = Modifier.testTag("limit_more"),
+                colors = buttonColors,
+            ) { Text(stringResource(R.string.ob_limit_more, LIMIT_STEP)) }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            LIMIT_PRESETS.forEach { preset ->
+                FilterChip(
+                    selected = limit == preset,
+                    onClick = { onChange(preset) },
+                    label = { Text(preset.toString()) },
+                    colors = chipColors,
+                )
             }
         }
     }
@@ -225,6 +283,7 @@ private fun ServiceState(enabled: Boolean) {
 private fun Hero(
     step: Int,
     enabled: Boolean,
+    limit: Int,
 ) {
     val primary = MaterialTheme.colorScheme.primary
     when (step) {
@@ -233,6 +292,17 @@ private fun Hero(
                 Text("36", style = MaterialTheme.typography.displayMedium)
             }
         1 ->
+            ProgressRing((limit / LIMIT_RING_FULL).coerceAtMost(1f), primary, Modifier.size(176.dp), strokeWidth = 14.dp) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(limit.toString(), style = MaterialTheme.typography.displayMedium, modifier = Modifier.testTag("limit_value"))
+                    Text(
+                        stringResource(R.string.ob_limit_per_day),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        2 ->
             Canvas(Modifier.size(120.dp)) {
                 val s = size.minDimension
                 val shield =
@@ -255,7 +325,7 @@ private fun Hero(
                     }
                 drawPath(tick, primary, style = Stroke(s * 0.06f, cap = StrokeCap.Round))
             }
-        2 ->
+        3 ->
             Canvas(Modifier.size(width = 150.dp, height = 84.dp)) {
                 val track = if (enabled) primary else Color(0xFF898781)
                 drawRoundRect(

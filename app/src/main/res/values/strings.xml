@@ -152,6 +152,11 @@
     <string name="ob_skip">Skip for now</string>
     <string name="ob_welcome_title">Welcome to ReelGuard</string>
     <string name="ob_welcome_body">ReelGuard counts how many Instagram Reels and YouTube Shorts you watch each day, lets you set a limit, and blocks Reels/Shorts when you reach it. Regular videos, your feed, stories and messages are never blocked.</string>
+    <string name="ob_limit_title">Set your daily limit</string>
+    <string name="ob_limit_body">How many Reels and Shorts do you want to allow yourself in total each day? Pick a number that feels a little hard to reach. You can change it any time in Settings.</string>
+    <string name="ob_limit_per_day">per day</string>
+    <string name="ob_limit_less">−%1$d</string>
+    <string name="ob_limit_more">+%1$d</string>
     <string name="ob_disclosure_title">What ReelGuard accesses</string>
     <string name="ob_disclosure_body">ReelGuard uses Android\'s Accessibility Service only to detect whether Reels or Shorts is on screen and to count swipes.\n\nIt does not read, collect or store content such as videos, captions, usernames or messages. What you watch, your counts and your settings never leave this device, and there is no account.\n\nTo see how many people use ReelGuard, it shares anonymous usage numbers such as app opens and your country. You can switch this off any time in Settings.</string>
     <string name="ob_agree">I understand, continue</string>
@@ -164,7 +169,7 @@
     <string name="ob_open_settings">Open accessibility settings</string>
     <string name="ob_restricted_hint">If the switch is greyed out on Android 13+: open the ReelGuard entry in system App info, tap the menu, and choose Allow restricted settings.</string>
     <string name="ob_done_title">All set</string>
-    <string name="ob_done_body">Your daily limit starts at 50 combined. You can change it in Settings.</string>
+    <string name="ob_done_body">Your daily limit is %1$d Reels and Shorts combined. You can change it in Settings.</string>
     <string name="ob_finish">Start</string>
 
     <!-- Health -->
