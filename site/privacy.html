@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReelGuard Privacy Policy</title>
+<meta name="description" content="What ReelGuard does with the Accessibility Service, what it stores on your device and what leaves it.">
+<meta name="theme-color" content="#f6f7f9">
+<link rel="canonical" href="https://bilalansari.in/reelguard/privacy.html">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<script>
+  // Apply the saved theme before first paint; light is the default.
+  try { if (localStorage.getItem("theme") === "dark") document.documentElement.setAttribute("data-theme", "dark"); } catch (e) {}
+</script>
+<style>
+  :root { color-scheme:light; --bg:#f6f7f9; --card:#fff; --text:#15171c; --muted:#5b6270; --accent:#3552d6; --line:#e2e5ea; }
+  :root[data-theme="dark"] { color-scheme:dark; --bg:#0e1014; --card:#171a20; --text:#eceef2; --muted:#9aa1ad; --accent:#7c9cff; --line:#262a33; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  .wrap { max-width:760px; margin:0 auto; padding:0 16px; }
+  header { padding:40px 0 8px; }
+  header a.home { display:inline-flex; align-items:center; gap:12px; text-decoration:none; color:var(--text); font-weight:700; font-size:1.1rem; }
+  header img { width:40px; height:40px; border-radius:10px; }
+  h1 { font-size:2rem; margin:24px 0 4px; }
+  h2 { font-size:1.2rem; margin:32px 0 8px; }
+  p, li { margin:0 0 12px; }
+  ul { padding-left:22px; margin:0 0 12px; }
+  .meta { color:var(--muted); font-size:.9rem; }
+  a { color:var(--accent); }
+  code { background:var(--card); border:1px solid var(--line); border-radius:4px; padding:0 4px; font-size:.92em; overflow-wrap:anywhere; }
+  footer { padding:32px 0 48px; color:var(--muted); text-align:center; border-top:1px solid var(--line); margin-top:40px; font-size:.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="home" href="./"><img src="icon.svg" alt="">ReelGuard</a>
+    <h1>Privacy Policy</h1>
+    <p class="meta">Last updated 11 November 2026 &middot; The same text as <a href="https://github.com/bilal8492/reelguard/blob/main/PRIVACY.md">PRIVACY.md</a> in the source repository.</p>
+  </header>
+
+  <main>
+    <p>ReelGuard helps you keep track of how many Instagram Reels and YouTube Shorts you watch each day.</p>
+
+    <h2>What the app does with the Accessibility Service</h2>
+    <ul>
+      <li>It checks whether the Reels or Shorts screen of Instagram or YouTube is currently shown, and counts how many different items you swipe through.</li>
+      <li>It does <strong>not</strong> read, record, store or transmit what the videos show or say, captions, usernames, comments, search terms or messages.</li>
+      <li>To tell two items apart it compares a one-way hash of on-screen identifiers. Hashes are kept in memory only (the last 5) and are not written to the database. The only exception is a recording you start yourself from the hidden debug screen, which stores hashes and timestamps in a local file.</li>
+      <li>The service only acts for the two apps listed above (and only the ones you leave switched on in Settings). Events from other apps are ignored immediately.</li>
+    </ul>
+
+    <h2>Data stored on your device</h2>
+    <ul>
+      <li>Per day and app: the number counted, and the time of each count (kept 30 days, then deleted).</li>
+      <li>Your settings (limits, reset time, options).</li>
+      <li>Nothing else. No account is required.</li>
+    </ul>
+
+    <h2>Data that leaves your device</h2>
+    <p>What you watch, your counts and your settings never leave your device. ReelGuard has no advertising or crash reporting.</p>
+    <p><strong>Anonymous usage statistics (on by default, you can switch them off).</strong> To see how many people use ReelGuard and roughly where from, the app uses Google Analytics for Firebase. Only Firebase&rsquo;s automatic app events are sent: first open, sessions and how long the app is open, app version, device model, Android version, language, a random app-instance ID, and an approximate location (country, region, city) that Google derives from the IP address (per Google&rsquo;s documentation, Analytics does not log or store IP addresses). The advertising ID is not collected, ad personalisation is switched off, and the app does not even hold the advertising-ID permission. Switch this off at any time in Settings &gt; Privacy &gt; Share anonymous usage statistics: the app then stops collecting and discards anything it had not yet uploaded. Google Analytics keeps this data for a limited period (2 to 14 months, depending on the property settings).</p>
+    <p><strong>Firebase Remote Config</strong> downloads a small configuration file (the list of screen identifiers used for detection) so detection can be fixed after YouTube/Instagram updates. It uploads none of your data. Like any Firebase client, it sends technical request data to Google (a Firebase installation ID, app ID and version, IP address, device model and OS version).</p>
+    <p>Builds made without a <code>google-services.json</code> (for example one you compile yourself) contain no Firebase configuration and make no network requests at all.</p>
+
+    <h2>Permissions</h2>
+    <ul>
+      <li>Accessibility Service: detection described above and the &ldquo;limit reached&rdquo; screen.</li>
+      <li>Notifications (Android 13+): optional limit warnings and a notice if the service stops working.</li>
+      <li>Internet: used only for the anonymous usage statistics and Remote Config described above.</li>
+    </ul>
+
+    <h2>Your control</h2>
+    <p>You can turn the service off in Android Settings &gt; Accessibility at any time, switch individual apps off in ReelGuard, switch anonymous usage statistics off in Settings &gt; Privacy, and delete all data by clearing the app&rsquo;s storage or uninstalling it.</p>
+
+    <h2>Contact</h2>
+    <p>Questions about privacy: open an issue at <a href="https://github.com/bilal8492/reelguard/issues">github.com/bilal8492/reelguard/issues</a> (or see <a href="https://github.com/bilal8492/reelguard/blob/main/SECURITY.md">SECURITY.md</a> for private reports).</p>
+  </main>
+
+  <footer>
+    <a href="./">ReelGuard</a> &middot;
+    <a href="https://github.com/bilal8492/reelguard">GitHub</a> &middot;
+    Not affiliated with Instagram, Meta, YouTube or Google.
+  </footer>
+</div>
+</body>
+</html>
