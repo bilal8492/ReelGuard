@@ -28,6 +28,7 @@ internal object Keys {
     val structuralFallback = booleanPreferencesKey("structural_fallback")
     val avgDuration = intPreferencesKey("avg_duration_seconds")
     val onboardingDone = booleanPreferencesKey("onboarding_done")
+    val onboardingConsent = booleanPreferencesKey("onboarding_consent")
     val blockingEnabled = booleanPreferencesKey("blocking_enabled")
     val snoozeEnabled = booleanPreferencesKey("snooze_enabled")
     val snoozeUntil = longPreferencesKey("snooze_until")
@@ -60,6 +61,13 @@ class SettingsRepository
         }
 
         suspend fun setOnboardingDone(done: Boolean) = edit { it[Keys.onboardingDone] = done }
+
+        /** Remembers the accepted disclosure and the limit picked so far, so setup can resume at the permission step. */
+        suspend fun setOnboardingConsent(limit: Int) =
+            edit {
+                it[Keys.onboardingConsent] = true
+                it[Keys.combinedLimit] = limit.coerceIn(1, MAX_INITIAL_LIMIT)
+            }
 
         /** The limit picked during setup. Unlike [setCombinedLimit] it is not a "raise", so it does not use up the daily raise. */
         suspend fun setInitialLimit(limit: Int) = edit { it[Keys.combinedLimit] = limit.coerceIn(1, MAX_INITIAL_LIMIT) }
@@ -176,6 +184,7 @@ private fun Preferences.toSettings(): Settings {
         structuralFallbackEnabled = this[Keys.structuralFallback] ?: d.structuralFallbackEnabled,
         avgDurationSeconds = this[Keys.avgDuration] ?: d.avgDurationSeconds,
         onboardingDone = this[Keys.onboardingDone] ?: d.onboardingDone,
+        onboardingConsent = this[Keys.onboardingConsent] ?: d.onboardingConsent,
         blockingEnabled = this[Keys.blockingEnabled] ?: d.blockingEnabled,
         snoozeEnabled = this[Keys.snoozeEnabled] ?: d.snoozeEnabled,
         snoozeUntil = this[Keys.snoozeUntil] ?: d.snoozeUntil,

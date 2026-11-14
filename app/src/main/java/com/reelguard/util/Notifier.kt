@@ -12,12 +12,12 @@ import android.graphics.Color
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Build
-import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.reelguard.MainActivity
 import com.reelguard.R
+import com.reelguard.ui.guide.AccessibilityGuideActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -75,7 +75,9 @@ class Notifier
                     .setSmallIcon(R.drawable.ic_stat)
                     .setContentTitle(context.getString(R.string.notif_stopped_title))
                     .setContentText(context.getString(R.string.notif_stopped_text))
-                    .setContentIntent(open(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS), 1))
+                    .setContentIntent(
+                        open(Intent(context, AccessibilityGuideActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 1),
+                    )
                     .setAutoCancel(true)
                     .build()
             NotificationManagerCompat.from(context).notify(ID_STOPPED, n)

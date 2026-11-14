@@ -30,6 +30,7 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -62,9 +63,16 @@ import com.reelguard.ui.common.PrimaryButton
 import com.reelguard.ui.common.ProgressRing
 import com.reelguard.ui.common.SecondaryButton
 import com.reelguard.ui.common.StatusGlyph
+import com.reelguard.ui.guide.AccessibilityGuideActivity
+import com.reelguard.ui.guide.GuideSteps
+import com.reelguard.ui.guide.installerPackage
 import com.reelguard.work.isServiceEnabled
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -76,6 +84,16 @@ class OnboardingViewModel
         @ApplicationContext private val context: Context,
     ) : ViewModel() {
         fun serviceEnabled() = isServiceEnabled(context)
+
+        /** Whether the disclosure was already accepted, and the limit picked then; null until the saved settings have loaded. */
+        val resume: StateFlow<Resume?> =
+            settings.settings
+                .map { Resume(it.onboardingConsent, it.combinedLimit) }
+                .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+        fun giveConsent(limit: Int) {
+            viewModelScope.launch { settings.setOnboardingConsent(limit) }
+        }
 
         fun finish(
             limit: Int,
@@ -89,14 +107,29 @@ class OnboardingViewModel
         }
     }
 
+/** What setup already got through, so reopening the app does not start the questions again. */
+data class Resume(
+    val consentGiven: Boolean,
+    val limit: Int,
+)
+
 @Composable
 fun OnboardingScreen(
     onDone: () -> Unit,
     vm: OnboardingViewModel = hiltViewModel(),
 ) {
-    OnboardingContent(isServiceEnabled = vm::serviceEnabled, onFinish = { limit -> vm.finish(limit, onDone) })
+    val resume by vm.resume.collectAsState()
+    val saved = resume ?: return
+    OnboardingContent(
+        isServiceEnabled = vm::serviceEnabled,
+        onFinish = { limit -> vm.finish(limit, onDone) },
+        startStep = if (saved.consentGiven) PERMISSION_STEP else 0,
+        startLimit = if (saved.consentGiven) saved.limit else LIMIT_START,
+        onConsent = vm::giveConsent,
+    )
 }
 
+private const val PERMISSION_STEP = 3
 private const val LAST = 4
 private const val LIMIT_STEP = 5
 private const val LIMIT_MIN = 5
@@ -108,9 +141,12 @@ private val LIMIT_PRESETS = listOf(20, 30, 50, 100)
 fun OnboardingContent(
     isServiceEnabled: () -> Boolean,
     onFinish: (limit: Int) -> Unit,
+    startStep: Int = 0,
+    startLimit: Int = LIMIT_START,
+    onConsent: (limit: Int) -> Unit = {},
 ) {
-    var step by rememberSaveable { mutableIntStateOf(0) }
-    var limit by rememberSaveable { mutableIntStateOf(LIMIT_START) }
+    var step by rememberSaveable { mutableIntStateOf(startStep) }
+    var limit by rememberSaveable { mutableIntStateOf(startLimit) }
     var declined by rememberSaveable { mutableStateOf(false) }
     var enabled by remember { mutableStateOf(isServiceEnabled()) }
     val context = LocalContext.current
@@ -135,12 +171,14 @@ fun OnboardingContent(
                 3 -> {
                     Copy(stringResource(R.string.ob_enable_title), stringResource(R.string.ob_enable_body))
                     ServiceState(enabled)
-                    Text(
-                        stringResource(R.string.ob_restricted_hint),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                    )
+                    if (GuideSteps.needsRestrictedHint(Build.VERSION.SDK_INT, context.installerPackage())) {
+                        Text(
+                            stringResource(R.string.ob_restricted_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
                 }
                 else -> Copy(stringResource(R.string.ob_done_title), stringResource(R.string.ob_done_body, limit))
             }
@@ -150,26 +188,45 @@ fun OnboardingContent(
                 0 -> PrimaryButton(stringResource(R.string.ob_next), { step = 1 }, Modifier.testTag("next"))
                 1 -> PrimaryButton(stringResource(R.string.ob_next), { step = 2 }, Modifier.testTag("limit_next"))
                 2 -> {
-                    PrimaryButton(stringResource(R.string.ob_agree), { step = 3 }, Modifier.testTag("agree"))
+                    PrimaryButton(
+                        stringResource(R.string.ob_agree),
+                        {
+                            onConsent(limit)
+                            step = PERMISSION_STEP
+                        },
+                        Modifier.testTag("agree"),
+                    )
                     SecondaryButton(stringResource(R.string.ob_decline), { declined = true })
                 }
                 3 -> {
-                    PrimaryButton(
-                        stringResource(R.string.ob_open_settings),
-                        { context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) },
-                    )
-                    SecondaryButton(
-                        stringResource(R.string.ob_next),
-                        {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                notifLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                            } else {
-                                step = LAST
-                            }
-                        },
-                        enabled = enabled,
-                    )
-                    SecondaryButton(stringResource(R.string.ob_skip), { step = LAST })
+                    if (enabled) {
+                        // There is no way to skip this step: ReelGuard cannot count anything until the service is on.
+                        PrimaryButton(
+                            stringResource(R.string.ob_next),
+                            {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                    notifLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                } else {
+                                    step = LAST
+                                }
+                            },
+                            Modifier.testTag("permission_continue"),
+                        )
+                    } else {
+                        PrimaryButton(
+                            stringResource(R.string.ob_guide_show),
+                            { AccessibilityGuideActivity.launch(context) },
+                            Modifier.testTag("guide_show"),
+                        )
+                        SecondaryButton(
+                            stringResource(R.string.ob_open_settings_manual),
+                            {
+                                context.startActivity(
+                                    Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                                )
+                            },
+                        )
+                    }
                 }
                 else -> PrimaryButton(stringResource(R.string.ob_finish), { onFinish(limit) }, Modifier.testTag("next"))
             }

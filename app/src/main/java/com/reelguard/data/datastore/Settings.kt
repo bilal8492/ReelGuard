@@ -37,6 +37,8 @@ data class Settings(
     val structuralFallbackEnabled: Boolean = false,
     val avgDurationSeconds: Int = 30,
     val onboardingDone: Boolean = false,
+    /** The user accepted the accessibility disclosure but has not finished setup; reopening the app resumes at the permission step. */
+    val onboardingConsent: Boolean = false,
     val blockingEnabled: Boolean = true,
     val snoozeEnabled: Boolean = false,
     val snoozeUntil: Long = 0,
