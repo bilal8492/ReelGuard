@@ -149,7 +149,6 @@
 
     <!-- Onboarding -->
     <string name="ob_next">Continue</string>
-    <string name="ob_skip">Skip for now</string>
     <string name="ob_welcome_title">Welcome to ReelGuard</string>
     <string name="ob_welcome_body">ReelGuard counts how many Instagram Reels and YouTube Shorts you watch each day, lets you set a limit, and blocks Reels/Shorts when you reach it. Regular videos, your feed, stories and messages are never blocked.</string>
     <string name="ob_limit_title">Set your daily limit</string>
@@ -163,7 +162,9 @@
     <string name="ob_decline">No thanks</string>
     <string name="ob_declined">ReelGuard cannot work without this permission. You can change your mind at any time.</string>
     <string name="ob_enable_title">Turn on the accessibility service</string>
-    <string name="ob_enable_body">Open Accessibility settings, choose ReelGuard (it may be under Installed apps), and switch it on.</string>
+    <string name="ob_enable_body">ReelGuard cannot count Reels or Shorts until this is switched on. We will walk you through it. It takes about 20 seconds.</string>
+    <string name="ob_guide_show">Show me how</string>
+    <string name="ob_open_settings_manual">Open settings myself</string>
     <string name="ob_enabled">Service is on</string>
     <string name="ob_not_enabled">Service is not on yet</string>
     <string name="ob_open_settings">Open accessibility settings</string>
@@ -207,4 +208,21 @@
     <string name="dbg_share">Share file</string>
     <string name="dbg_start_rec">Start recording signals</string>
     <string name="dbg_stop_rec">Stop recording (%1$d signals)</string>
+
+    <!-- Accessibility guide: a small floating window that walks through the three taps while Settings is open -->
+    <string name="guide_title">Turn on ReelGuard in 3 taps</string>
+    <string name="guide_subtitle">Android Settings opens next. These steps stay on screen in a small window so you can follow along.</string>
+    <string name="guide_step_counter">Step %1$d of %2$d</string>
+    <string name="guide_step1_installed">Tap “Installed apps”</string>
+    <string name="guide_step1_downloaded">Tap “Downloaded apps”</string>
+    <string name="guide_step2">Tap “ReelGuard”</string>
+    <string name="guide_step3">Turn the switch on, then tap “Allow”</string>
+    <string name="guide_label_installed">Installed apps</string>
+    <string name="guide_label_downloaded">Downloaded apps</string>
+    <string name="guide_mock_switch">Use ReelGuard</string>
+    <string name="guide_voice">Voice guide</string>
+    <string name="guide_open">Open Settings</string>
+    <string name="guide_not_now">Not now</string>
+    <string name="guide_done">ReelGuard is on. Taking you back.</string>
+    <string name="guide_no_window">Follow these steps in Settings: %1$s, then %2$s, then %3$s.</string>
 </resources>

@@ -45,6 +45,7 @@ import com.reelguard.ui.common.SecondaryButton
 import com.reelguard.ui.common.SectionHeader
 import com.reelguard.ui.common.StatusChip
 import com.reelguard.ui.common.StatusGlyph
+import com.reelguard.ui.guide.AccessibilityGuideActivity
 import com.reelguard.work.isServiceEnabled
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -143,7 +144,14 @@ fun HealthScreen(vm: HealthViewModel = hiltViewModel()) {
 
         PrimaryButton(
             stringResource(R.string.ob_open_settings),
-            { context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) },
+            {
+                // When the service is off, walk the user through turning it on; when it is on they may be here to turn it off.
+                if (s.serviceEnabled) {
+                    context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                } else {
+                    AccessibilityGuideActivity.launch(context)
+                }
+            },
         )
         SecondaryButton(
             stringResource(R.string.health_open_battery),
